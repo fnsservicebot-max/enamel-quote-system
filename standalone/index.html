@@ -419,7 +419,8 @@
               '姓名': { rich_text: [{ text: { content: quote.customer.name } }] },
               '電話': { phone_number: quote.customer.phone },
               '安裝地址': { rich_text: [{ text: { content: quote.customer.address } }] },
-              '建立日期': { date: { start: new Date().toISOString().split('T')[0] } }
+              '建立日期': { date: { start: new Date().toISOString().split('T')[0] } },
+              '希望安裝日期': quote.customer.installDate ? { date: { start: quote.customer.installDate } } : null
             }
           })
         });
