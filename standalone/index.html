@@ -84,6 +84,9 @@
     .math-question { font-size: 1.3rem; font-weight: bold; color: #667eea; }
     .verify-question input { padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; width: 150px; text-align: center; }
     .verify-error { margin-top: 10px; }
+    .manual-quote-message { padding: 30px; background: #fff3cd; border: 2px solid #ffc107; border-radius: 15px; text-align: center; }
+    .manual-quote-message p { margin: 15px 0; font-size: 1.1rem; color: #333; }
+    .manual-quote-message strong { color: #d32f2f; }
   </style>
 </head>
 <body>
@@ -297,10 +300,18 @@
     function calculateQuote(formData) {
       let subtotal = 0;
       const areas = [];
+      let needsManualQuote = false;
+      
       for (let i = 1; i <= 7; i++) {
         if (formData[`length${i}`] && formData[`width${i}`]) {
           const length = parseFloat(formData[`length${i}`]);
           const width = parseFloat(formData[`width${i}`]);
+          
+          // 檢查短邊是否超過 119cm
+          if (width > CONFIG.pricing.priceTier2.maxShortEdge) {
+            needsManualQuote = true;
+          }
+          
           const holes = parseInt(formData[`holes${i}`]) || 0;
           let pricePerCm;
           if (width <= CONFIG.pricing.priceTier1.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier1.pricePerCm;
@@ -315,6 +326,17 @@
           subtotal += areaTotal;
         }
       }
+      
+      // 如果有區域短邊超過 119cm，返回需要專人報價
+      if (needsManualQuote) {
+        return { 
+          success: true, 
+          needsManualQuote: true,
+          customer: { name: formData.name, phone: formData.phone, address: formData.address },
+          bank: CONFIG.bank
+        };
+      }
+      
       const tax = subtotal * CONFIG.pricing.taxRate;
       const total = subtotal + tax;
       return { success: true, customer: { name: formData.name, phone: formData.phone, address: formData.address }, areas, subtotal: Math.round(subtotal), tax: Math.round(tax), total: Math.round(total), bank: CONFIG.bank };
@@ -330,6 +352,29 @@
 
     function displayQuote(quote) {
       const display = document.getElementById('quoteDisplay');
+      
+      // 如果需要專人報價
+      if (quote.needsManualQuote) {
+        display.innerHTML = `
+          <h2 class="quote-title">⚠️ 需要專人報價</h2>
+          <div class="quote-section">
+            <h4>👤 客戶資訊</h4>
+            <div class="customer-info">
+              <p><strong>姓名：</strong>${quote.customer.name}</p>
+              <p><strong>電話：</strong>${quote.customer.phone}</p>
+              <p><strong>地址：</strong>${quote.customer.address}</p>
+            </div>
+          </div>
+          <div class="quote-section">
+            <div class="manual-quote-message">
+              <p>🔔 由於您輸入的尺寸中，有區域的短邊超過 119 公分，此類型產品需要專人評估報價。</p>
+              <p>我們會盡快與您聯繫，或歡迎您直接致電諮詢。</p>
+              <p><strong>感謝您的填寫！</strong></p>
+            </div>
+          </div>`;
+        return;
+      }
+      
       let areasHtml = '';
       quote.areas.forEach(area => {
         const tier = area.pricePerCm === 100 ? '短邊≤89cm' : area.pricePerCm === 130 ? '短邊89-119cm' : '短邊>119cm';
@@ -369,6 +414,24 @@
 
     async function confirmQuote() {
       if (!currentQuote) { alert('沒有報價資料'); return; }
+      
+      // 如果需要專人報價
+      if (currentQuote.needsManualQuote) {
+        showLoading(true);
+        const result = await saveToNotion(currentQuote);
+        showLoading(false);
+        
+        const display = document.getElementById('quoteDisplay');
+        if (result.success) {
+          display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>資料已送出！</h3><p>感謝您的填寫，由於您的需求需要專人評估，我們會盡快與您聯繫。</p><p style="margin-top:20px;color:#888;">謝謝您的理解！</p></div>`;
+        } else {
+          display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>資料已送出！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p style="margin-top:20px;color:#888;">謝謝您的理解！</p></div>`;
+        }
+        document.querySelector('.modal-actions').style.display = 'none';
+        return;
+      }
+      
+      // 一般報價流程
       showLoading(true);
       const result = await saveToNotion(currentQuote);
       showLoading(false);
