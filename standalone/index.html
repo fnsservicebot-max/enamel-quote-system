@@ -75,6 +75,15 @@
     .success-message h3 { color: #27ae60; font-size: 1.5rem; margin-bottom: 15px; }
     .success-message p { color: #666; margin-bottom: 10px; }
     .hidden { display: none; }
+    .verify-section { padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center; }
+    .verify-checkbox { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    .verify-checkbox input { width: 20px; height: 20px; }
+    .verify-checkbox label { font-size: 1.1rem; cursor: pointer; }
+    .verify-question { margin-top: 15px; }
+    .verify-question p { margin-bottom: 10px; color: #555; }
+    .math-question { font-size: 1.3rem; font-weight: bold; color: #667eea; }
+    .verify-question input { padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; width: 150px; text-align: center; }
+    .verify-error { margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -117,6 +126,21 @@
           <li>收邊條：每公分 1.5元 (依區域周長計算)</li>
           <li><strong>以上皆含稅含運</strong></li>
         </ul>
+      </section>
+      <section class="section">
+        <h2>🔒 防機器人驗證</h2>
+        <div class="verify-section">
+          <div class="verify-checkbox">
+            <input type="checkbox" id="notRobot" onchange="toggleVerify()">
+            <label for="notRobot">我不是機器人</label>
+          </div>
+          <div class="verify-question" id="verifyQuestion" style="display:none;">
+            <p>請回答以下問題以確認您是真人：</p>
+            <p class="math-question" id="mathQuestion"></p>
+            <input type="number" id="mathAnswer" placeholder="請輸入答案" required>
+          </div>
+          <p class="verify-error" id="verifyError" style="color:red;display:none;">請完成驗證</p>
+        </div>
       </section>
       <div class="button-group">
         <button type="button" class="btn btn-secondary" onclick="calculatePreview()">👁️ 預覽報價</button>
@@ -165,6 +189,43 @@
 
     let areaCount = 1;
     let currentQuote = null;
+    let mathAnswer = 0;
+    let isVerified = false;
+
+    // 產生隨機數學問題
+    function generateMathQuestion() {
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
+      mathAnswer = a + b;
+      document.getElementById('mathQuestion').textContent = `${a} + ${b} = ?`;
+    }
+
+    // 切換驗證問題顯示
+    function toggleVerify() {
+      const checkbox = document.getElementById('notRobot');
+      const questionDiv = document.getElementById('verifyQuestion');
+      if (checkbox.checked) {
+        generateMathQuestion();
+        questionDiv.style.display = 'block';
+        isVerified = true;
+      } else {
+        questionDiv.style.display = 'none';
+        isVerified = false;
+        document.getElementById('mathAnswer').value = '';
+      }
+    }
+
+    // 驗證數學答案
+    function checkMathAnswer() {
+      const userAnswer = parseInt(document.getElementById('mathAnswer').value);
+      if (userAnswer !== mathAnswer) {
+        document.getElementById('verifyError').style.display = 'block';
+        return false;
+      }
+      document.getElementById('verifyError').style.display = 'none';
+      return true;
+    }
+
     const maxAreas = 7;
 
     document.addEventListener('DOMContentLoaded', () => addArea());
@@ -198,6 +259,11 @@
     function removeArea(index) { const area = document.getElementById(`area${index}`); if (area) area.remove(); }
 
     function validateForm() {
+      // 檢查機器人驗證
+      if (!isVerified || !checkMathAnswer()) {
+        alert('請完成防機器人驗證');
+        return false;
+      }
       const areas = document.querySelectorAll('.area-card');
       if (areas.length === 0) { alert('請至少新增一個安裝區域'); return false; }
       let hasValidArea = false;
