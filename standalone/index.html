@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>琺瑯壁板報價系統</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+    .header h1 { font-size: 2rem; margin-bottom: 10px; }
+    .subtitle { opacity: 0.9; font-size: 1rem; }
+    .section { padding: 30px; border-bottom: 1px solid #eee; }
+    .section h2 { color: #333; font-size: 1.3rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-desc { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label { font-weight: 500; color: #444; margin-bottom: 8px; }
+    .required { color: #e74c3c; }
+    .form-group input { padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: border-color 0.3s; }
+    .form-group input:focus { outline: none; border-color: #667eea; }
+    .area-card { background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 15px; padding: 20px; margin-bottom: 15px; position: relative; }
+    .area-card h3 { color: #667eea; font-size: 1.1rem; margin-bottom: 15px; }
+    .area-card .remove-btn { position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; line-height: 1; }
+    .area-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    .area-inputs .form-group label { font-size: 0.85rem; }
+    .area-inputs input { padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; }
+    .area-inputs input:focus { outline: none; border-color: #667eea; }
+    .unit { font-size: 0.8rem; color: #888; margin-left: 5px; }
+    .button-group { padding: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 15px 30px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .info-section { background: #f8f9fa; }
+    .info-section h3 { color: #333; margin-bottom: 15px; }
+    .price-info { list-style: none; padding: 0; }
+    .price-info li { padding: 8px 0; color: #555; border-bottom: 1px dashed #ddd; }
+    .price-info li:last-child { border-bottom: none; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); overflow-y: auto; }
+    .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; max-width: 700px; width: 90%; position: relative; animation: slideDown 0.3s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+    .close { position: absolute; right: 20px; top: 20px; font-size: 2rem; cursor: pointer; color: #999; }
+    .close:hover { color: #333; }
+    .quote-title { text-align: center; color: #667eea; font-size: 1.8rem; margin-bottom: 30px; }
+    .quote-section { margin-bottom: 25px; }
+    .quote-section h4 { color: #333; font-size: 1.1rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+    .customer-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .customer-info p { color: #555; }
+    .customer-info strong { color: #333; }
+    .area-table { width: 100%; border-collapse: collapse; margin-top: 10px; overflow-x: auto; display: block; }
+    .area-table th, .area-table td { padding: 10px; text-align: center; border-bottom: 1px solid #eee; white-space: nowrap; }
+    .area-table th { background: #f8f9fa; color: #333; font-weight: 600; }
+    .area-table tr:hover { background: #f8f9fa; }
+    .quote-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; margin: 25px 0; }
+    .quote-total .row { display: flex; justify-content: space-between; padding: 8px 0; }
+    .quote-total .total-row { font-size: 1.4rem; font-weight: 700; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 15px; margin-top: 10px; }
+    .bank-info { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 20px; }
+    .bank-info h4 { color: #333; margin-bottom: 15px; }
+    .bank-detail { display: flex; flex-direction: column; gap: 10px; }
+    .bank-detail p { color: #555; font-size: 1.1rem; }
+    .bank-detail strong { color: #667eea; font-size: 1.3rem; }
+    .modal-actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; flex-wrap: wrap; }
+    .loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .area-inputs { grid-template-columns: 1fr 1fr; } .header h1 { font-size: 1.5rem; } .button-group { flex-direction: column; } .btn { width: 100%; } .modal-content { margin: 10% 5%; padding: 20px; } }
+    .success-message { text-align: center; padding: 40px; }
+    .success-message .checkmark { font-size: 4rem; color: #27ae60; margin-bottom: 20px; }
+    .success-message h3 { color: #27ae60; font-size: 1.5rem; margin-bottom: 15px; }
+    .success-message p { color: #666; margin-bottom: 10px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🏠 琺瑯壁板報價系統</h1>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價</p>
+    </header>
+    <form id="quoteForm">
+      <section class="section">
+        <h2>👤 客戶資料</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">姓名 <span class="required">*</span></label>
+            <input type="text" id="name" name="name" required placeholder="請輸入姓名">
+          </div>
+          <div class="form-group">
+            <label for="phone">電話 <span class="required">*</span></label>
+            <input type="tel" id="phone" name="phone" required placeholder="0912345678">
+          </div>
+          <div class="form-group full-width">
+            <label for="address">安裝地址 <span class="required">*</span></label>
+            <input type="text" id="address" name="address" required placeholder="請輸入完整安裝地址">
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>📐 安裝區域 (最多7區)</h2>
+        <p class="section-desc">每個區域需輸入長度、寬度(短邊)及開孔數量</p>
+        <div id="areasContainer"></div>
+        <button type="button" class="btn btn-secondary" onclick="addArea()">+ 新增區域</button>
+      </section>
+      <section class="section info-section">
+        <h3>📋 報價說明</h3>
+        <ul class="price-info">
+          <li>短邊 ≤ 89cm：長邊 × 100元/公分</li>
+          <li>短邊 89-119cm：長邊 × 130元/公分</li>
+          <li>短邊 > 119cm：長邊 × 160元/公分</li>
+          <li>開孔：每個 300元</li>
+          <li>收邊條：每公分 1.5元 (依區域周長計算)</li>
+          <li><strong>以上皆含稅含運</strong></li>
+        </ul>
+      </section>
+      <div class="button-group">
+        <button type="button" class="btn btn-secondary" onclick="calculatePreview()">👁️ 預覽報價</button>
+        <button type="submit" class="btn btn-primary">✓ 確認報價並提交</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 報價單 Modal -->
+  <div id="quoteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="quoteDisplay"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">← 修改資料</button>
+        <button type="button" class="btn btn-primary" onclick="confirmQuote()">✓ 確認報價</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 載入中 -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>處理中...</p>
+  </div>
+
+  <script>
+    // 配置
+    const CONFIG = {
+      bank: { name: '台新銀行', code: '812', account: '20301000329255' },
+      pricing: {
+        priceTier1: { maxShortEdge: 89, pricePerCm: 100 },
+        priceTier2: { maxShortEdge: 119, pricePerCm: 130 },
+        priceTier3: { pricePerCm: 160 },
+        holePrice: 300,
+        edgePricePerCm: 1.5,
+        taxRate: 0.05
+      }
+    };
+
+    const NOTION_API = 'https://api.notion.com/v1';
+    // === 請填入你的 Notion 設定 (從 https://www.notion.so/my-integrations 取得) ===
+    const NOTION_TOKEN = 'YOUR_NOTION_TOKEN';
+    const CUSTOMER_DATABASE_ID = 'YOUR_DATABASE_ID';
+    // =============================================================================
+
+    let areaCount = 1;
+    let currentQuote = null;
+    const maxAreas = 7;
+
+    document.addEventListener('DOMContentLoaded', () => addArea());
+
+    function addArea() {
+      if (areaCount > maxAreas) { alert('最多只能新增7個區域'); return; }
+      const container = document.getElementById('areasContainer');
+      const areaHtml = `
+        <div class="area-card" id="area${areaCount}">
+          <button type="button" class="remove-btn" onclick="removeArea(${areaCount})">&times;</button>
+          <h3>區域 ${areaCount}</h3>
+          <div class="area-inputs">
+            <div class="form-group">
+              <label>長邊 (公分) <span class="required">*</span></label>
+              <input type="number" id="length${areaCount}" name="length${areaCount}" min="1" required placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>短邊 (公分) <span class="required">*</span></label>
+              <input type="number" id="width${areaCount}" name="width${areaCount}" min="1" required placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>開孔數量</label>
+              <input type="number" id="holes${areaCount}" name="holes${areaCount}" min="0" value="0" placeholder="0">
+            </div>
+          </div>
+        </div>`;
+      container.insertAdjacentHTML('beforeend', areaHtml);
+      areaCount++;
+    }
+
+    function removeArea(index) { const area = document.getElementById(`area${index}`); if (area) area.remove(); }
+
+    function validateForm() {
+      const areas = document.querySelectorAll('.area-card');
+      if (areas.length === 0) { alert('請至少新增一個安裝區域'); return false; }
+      let hasValidArea = false;
+      areas.forEach(area => {
+        const lengthInput = area.querySelector('[name^="length"]');
+        const widthInput = area.querySelector('[name^="width"]');
+        if (lengthInput?.value && widthInput?.value) hasValidArea = true;
+      });
+      if (!hasValidArea) { alert('請至少填寫一個完整的區域資料'); return false; }
+      return document.getElementById('quoteForm').checkValidity();
+    }
+
+    function getFormData() {
+      const form = document.getElementById('quoteForm');
+      const formData = new FormData(form);
+      const data = {};
+      for (let [key, value] of formData.entries()) { if (value) data[key] = value; }
+      for (let i = 1; i <= maxAreas; i++) {
+        const length = document.getElementById(`length${i}`);
+        const width = document.getElementById(`width${i}`);
+        const holes = document.getElementById(`holes${i}`);
+        if (length?.value && width?.value) {
+          data[`length${i}`] = length.value;
+          data[`width${i}`] = width.value;
+          data[`holes${i}`] = holes?.value || 0;
+        }
+      }
+      return data;
+    }
+
+    function calculateQuote(formData) {
+      let subtotal = 0;
+      const areas = [];
+      for (let i = 1; i <= 7; i++) {
+        if (formData[`length${i}`] && formData[`width${i}`]) {
+          const length = parseFloat(formData[`length${i}`]);
+          const width = parseFloat(formData[`width${i}`]);
+          const holes = parseInt(formData[`holes${i}`]) || 0;
+          let pricePerCm;
+          if (width <= CONFIG.pricing.priceTier1.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier1.pricePerCm;
+          else if (width <= CONFIG.pricing.priceTier2.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier2.pricePerCm;
+          else pricePerCm = CONFIG.pricing.priceTier3.pricePerCm;
+          const panelPrice = length * pricePerCm;
+          const holePrice = holes * CONFIG.pricing.holePrice;
+          const perimeter = (length + width) * 2;
+          const edgePrice = perimeter * CONFIG.pricing.edgePricePerCm;
+          const areaTotal = panelPrice + holePrice + edgePrice;
+          areas.push({ index: i, length, width, pricePerCm, panelPrice, holes, holePrice, perimeter, edgePrice, total: areaTotal });
+          subtotal += areaTotal;
+        }
+      }
+      const tax = subtotal * CONFIG.pricing.taxRate;
+      const total = subtotal + tax;
+      return { success: true, customer: { name: formData.name, phone: formData.phone, address: formData.address }, areas, subtotal: Math.round(subtotal), tax: Math.round(tax), total: Math.round(total), bank: CONFIG.bank };
+    }
+
+    function calculatePreview() {
+      if (!validateForm()) return;
+      const formData = getFormData();
+      currentQuote = calculateQuote(formData);
+      displayQuote(currentQuote);
+      openModal();
+    }
+
+    function displayQuote(quote) {
+      const display = document.getElementById('quoteDisplay');
+      let areasHtml = '';
+      quote.areas.forEach(area => {
+        const tier = area.pricePerCm === 100 ? '短邊≤89cm' : area.pricePerCm === 130 ? '短邊89-119cm' : '短邊>119cm';
+        areasHtml += `<tr><td>${area.length} × ${area.width}</td><td>${tier}</td><td>${area.pricePerCm}</td><td>$${area.panelPrice.toLocaleString()}</td><td>${area.holes}</td><td>$${area.holePrice.toLocaleString()}</td><td>${area.perimeter}</td><td>$${area.edgePrice.toLocaleString()}</td><td><strong>$${area.total.toLocaleString()}</strong></td></tr>`;
+      });
+      display.innerHTML = `
+        <h2 class="quote-title">📋 報價單</h2>
+        <div class="quote-section"><h4>👤 客戶資訊</h4><div class="customer-info"><p><strong>姓名：</strong>${quote.customer.name}</p><p><strong>電話：</strong>${quote.customer.phone}</p><p><strong>地址：</strong>${quote.customer.address}</p></div></div>
+        <div class="quote-section"><h4>📐 報價明細</h4><table class="area-table"><thead><tr><th>尺寸</th><th>計價</th><th>單價</th><th>壁板</th><th>開孔</th><th>開孔費</th><th>周長</th><th>收邊條</th><th>小計</th></tr></thead><tbody>${areasHtml}</tbody></table></div>
+        <div class="quote-total"><div class="row"><span>小計：</span><span>$${quote.subtotal.toLocaleString()}</span></div><div class="row"><span>稅金 (5%)：</span><span>$${quote.tax.toLocaleString()}</span></div><div class="row total-row"><span>總計：</span><span>$${quote.total.toLocaleString()}</span></div></div>
+        <div class="bank-info"><h4>🏦 匯款資訊</h4><div class="bank-detail"><p>銀行：${quote.bank.name} (${quote.bank.code})</p><p>帳號：<strong>${quote.bank.account}</strong></p></div></div>`;
+    }
+
+    async function saveToNotion(quote) {
+      try {
+        const response = await fetch(`${NOTION_API}/pages`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${NOTION_TOKEN}`, 'Content-Type': 'application/json', 'Notion-Version': '2022-06-28' },
+          body: JSON.stringify({
+            parent: { database_id: CUSTOMER_DATABASE_ID },
+            properties: {
+              '客戶編號': { title: [{ text: { content: `C${Date.now()}` } }] },
+              '姓名': { rich_text: [{ text: { content: quote.customer.name } }] },
+              '電話': { phone_number: quote.customer.phone },
+              '安裝地址': { rich_text: [{ text: { content: quote.customer.address } }] },
+              '建立日期': { date: { start: new Date().toISOString().split('T')[0] } }
+            }
+          })
+        });
+        if (!response.ok) throw new Error('Notion API error');
+        return { success: true };
+      } catch (error) {
+        console.error('Notion error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    async function confirmQuote() {
+      if (!currentQuote) { alert('沒有報價資料'); return; }
+      showLoading(true);
+      const result = await saveToNotion(currentQuote);
+      showLoading(false);
+      if (result.success) {
+        const display = document.getElementById('quoteDisplay');
+        display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>報價已確認！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p><strong>報價總金額：$${currentQuote.total.toLocaleString()}</strong></p><p style="margin-top:20px;color:#888;">請依據上述匯款資訊進行匯款，謝謝！</p></div>`;
+        document.querySelector('.modal-actions').style.display = 'none';
+      } else {
+        alert('儲存失敗：' + result.error + '\n\n報價單已顯示，請聯繫客服處理。');
+      }
+    }
+
+    function handleSubmit(event) { event.preventDefault(); calculatePreview(); }
+    function openModal() { document.getElementById('quoteModal').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+    function closeModal() { document.getElementById('quoteModal').style.display = 'none'; document.body.style.overflow = 'auto'; document.querySelector('.modal-actions').style.display = 'flex'; }
+    window.onclick = function(event) { if (event.target === document.getElementById('quoteModal')) closeModal(); }
+    function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
+    document.getElementById('quoteForm').addEventListener('submit', handleSubmit);
+  </script>
+</body>
+</html>

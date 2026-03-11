@@ -1,0 +1,473 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    opacity: 0.9;
+    font-size: 1rem;
+  }
+
+  .section {
+    padding: 30px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .section h2 {
+    color: #333;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-desc {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-group label {
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 8px;
+  }
+
+  .required {
+    color: #e74c3c;
+  }
+
+  .form-group input {
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  /* 區域卡片 */
+  .area-card {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    position: relative;
+  }
+
+  .area-card h3 {
+    color: #667eea;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+
+  .area-card .remove-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .area-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+  }
+
+  .area-inputs .form-group label {
+    font-size: 0.85rem;
+  }
+
+  .area-inputs input {
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+  }
+
+  .area-inputs input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .unit {
+    font-size: 0.8rem;
+    color: #888;
+    margin-left: 5px;
+  }
+
+  /* 按鈕 */
+  .button-group {
+    padding: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* 資訊區 */
+  .info-section {
+    background: #f8f9fa;
+  }
+
+  .info-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .price-info {
+    list-style: none;
+    padding: 0;
+  }
+
+  .price-info li {
+    padding: 8px 0;
+    color: #555;
+    border-bottom: 1px dashed #ddd;
+  }
+
+  .price-info li:last-child {
+    border-bottom: none;
+  }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    overflow-y: auto;
+  }
+
+  .modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 700px;
+    width: 90%;
+    position: relative;
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+  }
+
+  .close:hover {
+    color: #333;
+  }
+
+  /* 報價單 */
+  .quote-title {
+    text-align: center;
+    color: #667eea;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+
+  .quote-section {
+    margin-bottom: 25px;
+  }
+
+  .quote-section h4 {
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+  }
+
+  .customer-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .customer-info p {
+    color: #555;
+  }
+
+  .customer-info strong {
+    color: #333;
+  }
+
+  /* 區域表格 */
+  .area-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .area-table th,
+  .area-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+
+  .area-table th {
+    background: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .area-table tr:hover {
+    background: #f8f9fa;
+  }
+
+  /* 總計 */
+  .quote-total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 25px 0;
+  }
+
+  .quote-total .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+
+  .quote-total .total-row {
+    font-size: 1.4rem;
+    font-weight: 700;
+    border-top: 2px solid rgba(255,255,255,0.3);
+    padding-top: 15px;
+    margin-top: 10px;
+  }
+
+  /* 匯款資訊 */
+  .bank-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+  }
+
+  .bank-info h4 {
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .bank-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bank-detail p {
+    color: #555;
+    font-size: 1.1rem;
+  }
+
+  .bank-detail strong {
+    color: #667eea;
+    font-size: 1.3rem;
+  }
+
+  /* Modal 按鈕 */
+  .modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  /* 載入中 */
+  .loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* 響應式 */
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .area-inputs {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .header h1 {
+      font-size: 1.5rem;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .btn {
+      width: 100%;
+    }
+    
+    .modal-content {
+      margin: 10% 5%;
+      padding: 20px;
+    }
+  }
+
+  /* 成功訊息 */
+  .success-message {
+    text-align: center;
+    padding: 40px;
+  }
+
+  .success-message .checkmark {
+    font-size: 4rem;
+    color: #27ae60;
+    margin-bottom: 20px;
+  }
+
+  .success-message h3 {
+    color: #27ae60;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .success-message p {
+    color: #666;
+    margin-bottom: 10px;
+  }
+</style>
