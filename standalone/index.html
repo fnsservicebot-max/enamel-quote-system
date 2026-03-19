@@ -546,7 +546,7 @@
       
       let stream = '';
       lines.forEach((line) => {
-        const cleanLine = line.replace(/\/g, '\\').replace(/\(/g, '\(').replace(/\)/g, '\)');
+        const cleanLine = line.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
         stream += `BT /F1 12 Tf ${M} ${H - y} Td (${cleanLine}) Tj ET\n`;
         y += 18;
       });
