@@ -1,5 +1,56 @@
 const GITHUB_API = 'https://api.github.com';
+const OAUTH_API = 'https://oauth2.googleapis.com';
+const DRIVE_API = 'https://www.googleapis.com/drive/v3';
 const USER_AGENT = 'enamel-quote-proxy/1.0';
+
+// 取得 Access Token（使用 Cloudflare Secrets 中的環境變數）
+async function getAccessToken() {
+  const res = await fetch(`${OAUTH_API}/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      refresh_token: env.GOOGLE_REFRESH_TOKEN,
+      grant_type: 'refresh_token'
+    })
+  });
+  const data = await res.json();
+  return data.access_token;
+}
+
+// 上傳 PDF 到 Google Drive
+async function uploadPDF(quoteData, pdfBase64) {
+  const accessToken = await getAccessToken();
+  const fileName = `JFE_${quoteData.customer.name}_${quoteData.customer.phone}_${Date.now()}.pdf`;
+  const boundary = 'boundary_' + Math.random().toString(36).slice(2);
+  
+  const body = [
+    `--${boundary}`,
+    'Content-Type: application/json',
+    '',
+    JSON.stringify({
+      name: fileName,
+      parents: [env.GOOGLE_DRIVE_FOLDER_ID]
+    }),
+    `--${boundary}`,
+    'Content-Type: application/pdf',
+    '',
+    atob(pdfBase64),
+    `--${boundary}--`
+  ].join('\r\n');
+
+  const res = await fetch(`${DRIVE_API}/files?uploadType=multipart`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': `multipart/related; boundary=${boundary}`
+    },
+    body
+  });
+  
+  return res.json();
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -41,7 +92,17 @@ export default {
       } catch (kvErr) { /* ignore */ }
     }
 
-    // 觸發 GitHub repository_dispatch
+    // 如果有 PDF，就上傳到 Google Drive
+    if (body.pdfBase64) {
+      try {
+        const uploadResult = await uploadPDF(body, body.pdfBase64);
+        console.log('PDF upload result:', JSON.stringify(uploadResult));
+      } catch (uploadErr) {
+        console.error('PDF upload error:', uploadErr);
+      }
+    }
+
+    // 觸發 GitHub 寫入 Notion
     const dispatchRes = await fetch(
       `${GITHUB_API}/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/dispatches`,
       {

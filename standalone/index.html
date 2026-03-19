@@ -500,12 +500,100 @@
     // 部署後替換為你的 Worker URL，例如：https://enamel-quote-proxy.your-subdomain.workers.dev
     const WORKER_URL = 'https://enamel-quote-proxy.fns-service-bot.workers.dev';
 
+    // 產生 PDF 並轉成 Base64
+    function generatePDF(customer, quote) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let y = 20;
+
+      // 標題
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('JFE 琺瑯板報價單', pageWidth / 2, y, { align: 'center' });
+      y += 10;
+
+      // 報價時間
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`報價時間：${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}`, pageWidth / 2, y, { align: 'center' });
+      y += 15;
+
+      // 客戶資料
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('客戶資料', 15, y);
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`姓名：${customer.name}`, 15, y); y += 6;
+      doc.text(`電話：${customer.phone}`, 15, y); y += 6;
+      doc.text(`地址：${customer.address}`, 15, y); y += 6;
+      if (customer.installDate) {
+        doc.text(`希望安裝日期：${customer.installDate}`, 15, y); y += 6;
+      }
+      y += 5;
+
+      // 報價明細
+      if (!quote.needsManualQuote && quote.areas) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('報價明細', 15, y);
+        y += 8;
+
+        // 表頭
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        const cols = ['尺寸', '計費', '單價', '壁板', '開孔', '開孔費', '周長', '收邊', '小計'];
+        cols.forEach((col, i) => doc.text(col, 15 + i * 20, y));
+        y += 2;
+        doc.line(15, y, pageWidth - 15, y);
+        y += 6;
+
+        doc.setFont('helvetica', 'normal');
+        quote.areas.forEach(area => {
+          const tier = area.pricePerCm === 100 ? '≤89cm' : area.pricePerCm === 130 ? '89-119' : '>119cm';
+          const row = [
+            `${area.length}x${area.width}`, tier, `${area.pricePerCm}`,
+            `${area.panelPrice}`, `${area.holes}`, `${area.holePrice}`,
+            `${area.perimeter}`, `${area.edgePrice}`, `${area.total}`
+          ];
+          row.forEach((cell, i) => doc.text(cell, 15 + i * 20, y));
+          y += 6;
+        });
+
+        y += 5;
+        doc.setFont('helvetica', 'bold');
+        doc.text(`小計：$${quote.subtotal?.toLocaleString()}`, 15, y); y += 6;
+        doc.text(`稅金 (5%)：$${quote.tax?.toLocaleString()}`, 15, y); y += 6;
+        doc.setFontSize(12);
+        doc.text(`總計：$${quote.total?.toLocaleString()}`, 15, y); y += 10;
+      } else {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('需專人報價（短邊超過 119cm）', 15, y);
+        y += 10;
+      }
+
+      // 公司資訊
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('琺恩斯國際｜電話：02-82732233｜新北市土城區青仁路116號', pageWidth / 2, y, { align: 'center' });
+      y += 5;
+      doc.text('營業時間：09:30～20:00（每週三公休）', pageWidth / 2, y, { align: 'center' });
+
+      return doc.output('datauristring').split(',')[1];
+    }
+
     async function submitQuote(customer, quote) {
       try {
+        // 產生 PDF
+        const pdfBase64 = generatePDF(customer, quote);
+
         const response = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer, quote })
+          body: JSON.stringify({ customer, quote, pdfBase64 })
         });
         if (!response.ok) {
           const data = await response.json();
