@@ -570,7 +570,7 @@ ${objs.join('\n').length + 50}
       const bin = atob(pdf);
       const bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return btoa(String.fromCharCode.apply(null, bytes));
+      return btoa(unescape(encodeURIComponent(pdf)));
     }
     
     function generatePDF(customer, quote) {
