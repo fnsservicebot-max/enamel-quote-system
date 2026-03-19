@@ -514,7 +514,7 @@
     // 產生 PDF 並轉成 Base64
     function generatePDF(customer, quote) {
       // Handle both window.jsPDF (2.x) and window.jspdf (1.x) naming
-      const JsPDF = window.jsPDF || window.jspdf;
+      const JsPDF = window.jsPDF?.default || window.jsPDF || window.jspdf;
       if (!JsPDF) {
         throw new Error('jsPDF library not loaded');
       }
