@@ -1,0 +1,12 @@
+name = "enamel-quote-proxy"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+# KV Namespace for rate limiting
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "YOUR_KV_NAMESPACE_ID"
+
+[vars]
+GITHUB_OWNER = "fnsservicebot-max"
+GITHUB_REPO = "enamel-quote-system"

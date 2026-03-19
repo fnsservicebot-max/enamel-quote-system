@@ -215,11 +215,7 @@
       }
     };
 
-    const NOTION_API = 'https://api.notion.com/v1';
-    // === 請填入你的 Notion 設定 (從 https://www.notion.so/my-integrations 取得) ===
-    const NOTION_TOKEN = 'YOUR_NOTION_TOKEN';
-    const CUSTOMER_DATABASE_ID = '320570d9c30181e1aedac3af764b1b06';
-    // =============================================================================
+    // Notion 相關設定已移至 GitHub Actions Secrets / Cloudflare Worker
 
     // 台灣完整地址資料
     const taiwanAddresses = {
@@ -513,32 +509,24 @@
         </div>`;
     }
 
-    async function saveToNotion(quote) {
+    // === Cloudflare Worker 代理 endpoint（不需要任何密鑰）===
+    // 部署後替換為你的 Worker URL，例如：https://enamel-quote-proxy.your-subdomain.workers.dev
+    const WORKER_URL = 'YOUR_CLOUDFLARE_WORKER_URL';
+
+    async function submitQuote(customer, quote) {
       try {
-        // 取得報價金額
-        const quoteAmount = quote.needsManualQuote ? null : (quote.total || null);
-        
-        const response = await fetch(`${NOTION_API}/pages`, {
+        const response = await fetch(WORKER_URL, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${NOTION_TOKEN}`, 'Content-Type': 'application/json', 'Notion-Version': '2022-06-28' },
-          body: JSON.stringify({
-            parent: { database_id: CUSTOMER_DATABASE_ID },
-            properties: {
-              '客戶編號': { title: [{ text: { content: `C${Date.now()}` } }] },
-              '姓名': { rich_text: [{ text: { content: quote.customer.name } }] },
-              '電話': { phone_number: quote.customer.phone },
-              '安裝地址': { rich_text: [{ text: { content: quote.customer.address } }] },
-              '建立日期': { date: { start: new Date().toISOString().split('T')[0] } },
-              '希望安裝日期': quote.customer.installDate ? { date: { start: quote.customer.installDate } } : null,
-              '報價金額': quoteAmount !== null ? { number: quoteAmount } : null,
-              '備注': { rich_text: [{ text: { content: quote.needsManualQuote ? '需專人報價' : '' } }] }
-            }
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer, quote })
         });
-        if (!response.ok) throw new Error('Notion API error');
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || '提交失敗');
+        }
         return { success: true };
       } catch (error) {
-        console.error('Notion error:', error);
+        console.error('Submit error:', error);
         return { success: false, error: error.message };
       }
     }
@@ -549,7 +537,7 @@
       // 如果需要專人報價
       if (currentQuote.needsManualQuote) {
         showLoading(true);
-        const result = await saveToNotion(currentQuote);
+        const result = await submitQuote(currentQuote.customer, currentQuote);
         showLoading(false);
         
         const display = document.getElementById('quoteDisplay');
@@ -564,7 +552,7 @@
       
       // 一般報價流程
       showLoading(true);
-      const result = await saveToNotion(currentQuote);
+      const result = await submitQuote(currentQuote.customer, currentQuote);
       showLoading(false);
       if (result.success) {
         const display = document.getElementById('quoteDisplay');
