@@ -1,46 +1,28 @@
 const GITHUB_API = 'https://api.github.com';
-const OAUTH_API = 'https://oauth2.googleapis.com';
-const DRIVE_API = 'https://www.googleapis.com/drive/v3';
 const USER_AGENT = 'enamel-quote-proxy/1.0';
 
-// 取得 Access Token（使用 Cloudflare Secrets 中的環境變數）
-async function getAccessToken() {
-  const res = await fetch(`${OAUTH_API}/token`, {
+async function getAccessToken(env) {
+  const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: env.GOOGLE_CLIENT_ID,
-      client_secret: env.GOOGLE_CLIENT_SECRET,
-      refresh_token: env.GOOGLE_REFRESH_TOKEN,
-      grant_type: 'refresh_token'
-    })
+    body: `client_id=${encodeURIComponent(env.GOOGLE_CLIENT_ID)}&client_secret=${encodeURIComponent(env.GOOGLE_CLIENT_SECRET)}&refresh_token=${encodeURIComponent(env.GOOGLE_REFRESH_TOKEN)}&grant_type=refresh_token`
   });
   const data = await res.json();
+  if (!res.ok) {
+    throw new Error(`Token error: ${res.status} - ${JSON.stringify(data)}`);
+  }
   return data.access_token;
 }
 
-// 上傳 PDF 到 Google Drive
-async function uploadPDF(quoteData, pdfBase64) {
-  const accessToken = await getAccessToken();
+async function uploadPDF(env, quoteData, pdfBase64) {
+  const accessToken = await getAccessToken(env);
   const fileName = `JFE_${quoteData.customer.name}_${quoteData.customer.phone}_${Date.now()}.pdf`;
-  const boundary = 'boundary_' + Math.random().toString(36).slice(2);
-  
-  const body = [
-    `--${boundary}`,
-    'Content-Type: application/json',
-    '',
-    JSON.stringify({
-      name: fileName,
-      parents: [env.GOOGLE_DRIVE_FOLDER_ID]
-    }),
-    `--${boundary}`,
-    'Content-Type: application/pdf',
-    '',
-    atob(pdfBase64),
-    `--${boundary}--`
-  ].join('\r\n');
+  const boundary = 'b' + Math.random().toString(36).slice(2);
+  const binaryStr = atob(pdfBase64);
+  const metaJson = JSON.stringify({ name: fileName, parents: [env.GOOGLE_DRIVE_FOLDER_ID] });
+  const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${metaJson}\r\n--${boundary}\r\nContent-Type: application/pdf\r\n\r\n${binaryStr}\r\n--${boundary}--`;
 
-  const res = await fetch(`${DRIVE_API}/files?uploadType=multipart`, {
+  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
@@ -48,7 +30,11 @@ async function uploadPDF(quoteData, pdfBase64) {
     },
     body
   });
-  
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Drive error ${res.status}: ${err.slice(0, 200)}`);
+  }
   return res.json();
 }
 
@@ -56,11 +42,7 @@ export default {
   async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') {
       return new Response(null, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        }
+        headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
       });
     }
 
@@ -92,19 +74,21 @@ export default {
       } catch (kvErr) { /* ignore */ }
     }
 
-    // 如果有 PDF，就上傳到 Google Drive
+    // PDF 上傳
+    let pdfId = null;
     if (body.pdfBase64) {
       try {
-        const uploadResult = await uploadPDF(body, body.pdfBase64);
-        console.log('PDF upload result:', JSON.stringify(uploadResult));
+        const result = await uploadPDF(env, body, body.pdfBase64);
+        pdfId = result.id;
       } catch (uploadErr) {
         console.error('PDF upload error:', uploadErr);
+        return new Response(JSON.stringify({ error: `PDF上傳失敗: ${uploadErr.message}` }), { status: 500, headers: { 'Content-Type': 'application/json' } });
       }
     }
 
-    // 觸發 GitHub 寫入 Notion
+    // GitHub Notion
     const dispatchRes = await fetch(
-      `${GITHUB_API}/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/dispatches`,
+      `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/dispatches`,
       {
         method: 'POST',
         headers: {
@@ -120,11 +104,10 @@ export default {
 
     if (!dispatchRes.ok) {
       const errorText = await dispatchRes.text();
-      console.error('GitHub dispatch error:', dispatchRes.status, errorText);
       return new Response(JSON.stringify({ error: `提交失敗 (${dispatchRes.status})` }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, pdfId }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
