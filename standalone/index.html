@@ -41,6 +41,9 @@
     .info-section h3 { color: #333; margin-bottom: 15px; }
     .price-info { list-style: none; padding: 0; }
     .price-info li { padding: 8px 0; color: #555; border-bottom: 1px dashed #ddd; }
+    .store-info { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 10px; }
+    .store-info h4 { color: #667eea; margin-bottom: 10px; }
+    .store-info p { color: #555; font-size: 1rem; margin: 4px 0; }
     .price-info li:last-child { border-bottom: none; }
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); overflow-y: auto; }
     .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; max-width: 700px; width: 90%; position: relative; animation: slideDown 0.3s ease; }
@@ -160,6 +163,13 @@
           <li>收邊條：每公分 1.5元 (依區域周長計算)</li>
           <li><strong>以上皆含稅含運</strong></li>
         </ul>
+        <div class="store-info">
+          <h4>🏪 琺恩斯國際 門市資訊</h4>
+          <p>📍 新北市土城區青仁路116號</p>
+          <p>📞 02-82732233</p>
+          <p>🕐 營業時間：09:30～20:00（每週三公休）</p>
+          <p style="font-size:0.85rem;color:#888;margin-top:5px;">（門市採全預約制，請提前來電確認）</p>
+        </div>
       </section>
       <section class="section">
         <h2>🔒 防機器人驗證</h2>
@@ -217,14 +227,14 @@
 
     // Notion 相關設定已移至 GitHub Actions Secrets / Cloudflare Worker
 
-    // 台灣地址資料（僅限新北、臺北、基隆、桃園、新竹）
+    // 台灣地址資料（僅限服務區域）
     const taiwanAddresses = {
       "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
       "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "土城區", "蘆洲區", "樹林區", "鶯歌區", "淡水區", "汐止區", "林口區", "泰山區", "五股區", "八里區", "深坑區", "石碇區", "瑞芳區", "三峽區", "新店區", "坪林區", "貢寮區", "雙溪區", "平溪區", "萬里區", "金山區", "烏來區"],
       "桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大溪區", "龜山區", "龍潭區", "觀音區", "新屋區", "復興區", "大園區"],
+      "基隆市": ["中正區", "信義區", "仁愛區", "中山區", "安樂區", "暖暖區", "七堵區"],
       "新竹市": ["東區", "北區", "香山區"],
-      "新竹縣": ["竹北市", "關西鎮", "新埔鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "峨眉鄉", "寶山鄉", "尖石鄉", "五峰鄉"],
-      "基隆市": ["中正區", "信義區", "仁愛區", "中山區", "安樂區", "暖暖區", "七堵區"]
+      "新竹縣": ["竹北市", "關西鎮", "新埔鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "峨眉鄉", "寶山鄉", "尖石鄉", "五峰鄉"]
     };
 
     // 初始化縣市選單
