@@ -512,7 +512,7 @@
 
     // 產生 PDF 並轉成 Base64
     function generatePDF(customer, quote) {
-      const jsPDF = (window.jsPDF && window.jsPDF.default) ? window.jsPDF.default : window.jsPDF;
+      const jsPDF = window.jsPDF;
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       let y = 20;
