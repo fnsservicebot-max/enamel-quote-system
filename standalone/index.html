@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>琺瑯壁板報價系統 V26031901</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; line-height: 1.6; }
@@ -512,8 +513,12 @@
 
     // 產生 PDF 並轉成 Base64
     function generatePDF(customer, quote) {
-      const jsPDF = window.jsPDF;
-      const doc = new jsPDF();
+      // Handle both window.jsPDF (2.x) and window.jspdf (1.x) naming
+      const JsPDF = window.jsPDF || window.jspdf;
+      if (!JsPDF) {
+        throw new Error('jsPDF library not loaded');
+      }
+      const doc = new JsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       let y = 20;
 
