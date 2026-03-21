@@ -417,8 +417,13 @@
       
       for (let i = 1; i <= 7; i++) {
         if (formData[`length${i}`] && formData[`width${i}`]) {
-          const length = parseFloat(formData[`length${i}`]);
-          const width = parseFloat(formData[`width${i}`]);
+          let length = parseFloat(formData[`length${i}`]);
+          let width = parseFloat(formData[`width${i}`]);
+          
+          // 自動交換：長邊永遠是數值較大的
+          if (length < width) {
+            [length, width] = [width, length];
+          }
           
           // 檢查短邊是否超過 119cm
           if (width > CONFIG.pricing.priceTier2.maxShortEdge) {
