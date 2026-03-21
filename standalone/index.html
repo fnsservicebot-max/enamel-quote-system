@@ -640,8 +640,8 @@
       });
     }
 
-    function downloadPDF(customer, quote) {
-      const b64 = encodePDF(customer, quote);
+    async function downloadPDF(customer, quote) {
+      const b64 = await encodePDF(customer, quote);
       const blob = base64ToBlob(b64, 'application/pdf');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -701,8 +701,8 @@
       });
     }
 
-    function downloadPDF(customer, quote) {
-      const b64 = encodePDF(customer, quote);
+    async function downloadPDF(customer, quote) {
+      const b64 = await encodePDF(customer, quote);
       const blob = base64ToBlob(b64, 'application/pdf');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -762,8 +762,8 @@
       });
     }
 
-    function downloadPDF(customer, quote) {
-      const b64 = encodePDF(customer, quote);
+    async function downloadPDF(customer, quote) {
+      const b64 = await encodePDF(customer, quote);
       const blob = base64ToBlob(b64, 'application/pdf');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -779,7 +779,7 @@
       try {
         // 產生 PDF
         const pdfBase64 = await encodePDF(customer, quote);
-      downloadPDF(customer, quote); // trigger download
+      await downloadPDF(customer, quote); // trigger download
 
         const response = await fetch(WORKER_URL, {
           method: 'POST',
