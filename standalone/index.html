@@ -3,34 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>琺瑯壁板報價系統 V26032112</title>
+  <title>琺瑯壁板報價系統 V26032114</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-  <script>
-    // 下載並註冊中文字體
-    function loadCJKFont() {
-      // Noto Sans TC Regular (子集)
-      var fontUrl = 'https://fonts.gstatic.com/s/notosanstc/v36/pxiLypw3ucYo5KIlNlnf0h5RJ3Ox6CgjDI5aidP.woff2';
-      fetch(fontUrl)
-        .then(function(response) { return response.arrayBuffer(); })
-        .then(function(buffer) {
-          var uint8Array = new Uint8Array(buffer);
-          pdfMake.vfs['NotoSansTC-Regular.woff2'] = uint8Array;
-          pdfMake.fonts = {
-            notoSansTC: {
-              normal: 'NotoSansTC-Regular.woff2',
-              bold: 'NotoSansTC-Regular.woff2',
-              italics: 'NotoSansTC-Regular.woff2',
-              bolditalics: 'NotoSansTC-Regular.woff2'
-            }
-          };
-          console.log('CJK font loaded');
-        })
-        .catch(function(e) { console.error('Font load error:', e); });
-    }
-    loadCJKFont();
-  </script>
+
     <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; line-height: 1.6; }
@@ -131,7 +106,7 @@
   <div class="container">
     <header class="header">
       <h1>🏠 琺瑯壁板報價系統</h1>
-      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032112</span></p>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032114</span></p>
     </header>
     <form id="quoteForm">
       <section class="section">
@@ -540,8 +515,6 @@
     // 部署後替換為你的 Worker URL，例如：https://enamel-quote-proxy.your-subdomain.workers.dev
     const WORKER_URL = 'https://enamel-quote-proxy.fns-service-bot.workers.dev';
 
-    // 產生 PDF 並轉成 Base64
-    // UTF-16BE encoded PDF with CID font for Chinese support
     function strToUTF16BE(str) {
       const buf = new ArrayBuffer(str.length * 2 + 2);
       const view = new DataView(buf);
@@ -557,289 +530,23 @@
       }
       return result;
     }
-    // PDF產生器（使用pdfmake）
-    function encodePDF(customer, quote) {
-      const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
-      const needsManual = quote.needsManualQuote;
-      
-      const docDefinition = {
-        content: [
-          { text: 'JFE 琺瑯板報價單', style: 'title' },
-          { text: '報價時間：' + now, style: 'subtitle' },
-          { text: ' ', margin: [0,5] },
-          { text: '【客戶資料】', style: 'sectionHeader' },
-          { text: '姓名：' + customer.name },
-          { text: '電話：' + customer.phone },
-          { text: 'Email：' + customer.email },
-          { text: '地址：' + customer.address },
-          customer.installDate ? { text: '希望安裝日期：' + customer.installDate } : {},
-          { text: ' ', margin: [0,5] },
-          { text: '【報價明細】', style: 'sectionHeader' },
-          { text: '小計：$' + Number(quote.subtotal||0).toLocaleString() },
-          { text: '稅金(5%)：$' + Number(quote.tax||0).toLocaleString() },
-          { text: '總計：$' + Number(quote.total||0).toLocaleString(), bold: true, fontSize: 14 },
-          needsManual ? { text: '（含需專人報價項目）' } : {},
-          { text: ' ', margin: [0,5] },
-          { text: '【公司資訊】', style: 'sectionHeader' },
-          { text: '琺恩斯國際｜02-82732233' },
-          { text: '新北市土城區青仁路116號' },
-          { text: '營業時間：09:30～20:00（每週三公休）' }
-        ],
-        styles: {
-          title: { fontSize: 18, bold: true, alignment: 'center', margin: [0,0,0,10] },
-          subtitle: { fontSize: 10, color: '#666', alignment: 'center', margin: [0,0,0,20] },
-          sectionHeader: { fontSize: 12, bold: true, margin: [0,10,0,5] }
-        },
-        defaultStyle: { fontSize: 11 }
-      };
-      
-      const pdfDoc = pdfMake.createPdf(docDefinition);
-      return new Promise(function(resolve) {
-        pdfDoc.getBase64(function(data) { resolve(data); });
-      });
-    }
-
-    async function generatePDF(customer, quote) {
-      return await encodePDF(customer, quote);
-    }
-
-        function base64ToBlob(base64, mimeType) {
-      const byteCharacters = atob(base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      return new Blob([byteArray], { type: mimeType });
-    }
-
-    
-    function base64ToBlob(base64, mimeType) {
-      const byteChars = atob(base64);
-      const byteNums = new Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
-      return new Blob([new Uint8Array(byteNums)], { type: mimeType });
-    }
-
-    function encodePDF(customer, quote) {
-      const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
-      const needsManual = quote.needsManualQuote;
-      const doc = {
-        content: [
-          { text: 'JFE 琺瑯板報價單', style: 'title' },
-          { text: '報價時間：' + now, style: 'subtitle' },
-          { text: ' ' },
-          { text: '【客戶資料】', style: 'sectionHeader' },
-          { text: '姓名：' + customer.name },
-          { text: '電話：' + customer.phone },
-          { text: 'Email：' + customer.email },
-          { text: '地址：' + customer.address },
-          customer.installDate ? { text: '希望安裝日期：' + customer.installDate } : {},
-          { text: ' ' },
-          { text: '【報價明細】', style: 'sectionHeader' },
-          { text: '小計：$' + Number(quote.subtotal||0).toLocaleString() },
-          { text: '稅金(5%)：$' + Number(quote.tax||0).toLocaleString() },
-          { text: '總計：$' + Number(quote.total||0).toLocaleString(), bold: true, fontSize: 14 },
-          needsManual ? { text: '（含需專人報價項目）' } : {},
-          { text: ' ' },
-          { text: '【公司資訊】', style: 'sectionHeader' },
-          { text: '琺恩斯國際｜02-82732233' },
-          { text: '新北市土城區青仁路116號' },
-          { text: '營業時間：09:30～20:00（每週三公休）' }
-        ].filter(function(x){ return x === '' || x.text !== undefined; }),
-        styles: {
-          title: { fontSize: 18, bold: true, alignment: 'center', margin: [0,0,0,10] },
-          subtitle: { fontSize: 10, color: '#666', alignment: 'center', margin: [0,0,0,20] },
-          sectionHeader: { fontSize: 12, bold: true, margin: [0,10,0,5] }
-        },
-        pageSize: 'A4',
-        pageMargins: [40, 40, 40, 40],
-        defaultStyle: {
-          font: 'notoSansTC',
-          fontSize: 12
-        }
-      };
-      const pdfDoc = pdfMake.createPdf(doc);
-      return new Promise(function(resolve) {
-        pdfDoc.getBase64(function(data) { resolve(data); });
-      });
-    }
-
-    async function downloadPDF(customer, quote) {
-      const b64 = await encodePDF(customer, quote);
-      const blob = base64ToBlob(b64, 'application/pdf');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'JFE_' + customer.name + '_' + customer.phone + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    
-    function base64ToBlob(base64, mimeType) {
-      const byteChars = atob(base64);
-      const byteNums = new Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
-      return new Blob([new Uint8Array(byteNums)], { type: mimeType });
-    }
-
-    function encodePDF(customer, quote) {
-      const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
-      const needsManual = quote.needsManualQuote;
-      const doc = {
-        content: [
-          { text: 'JFE 琺瑯板報價單', style: 'title' },
-          { text: '報價時間：' + now, style: 'subtitle' },
-          { text: ' ' },
-          { text: '【客戶資料】', style: 'sectionHeader' },
-          { text: '姓名：' + customer.name },
-          { text: '電話：' + customer.phone },
-          { text: 'Email：' + customer.email },
-          { text: '地址：' + customer.address },
-          customer.installDate ? { text: '希望安裝日期：' + customer.installDate } : {},
-          { text: ' ' },
-          { text: '【報價明細】', style: 'sectionHeader' },
-          { text: '小計：$' + Number(quote.subtotal||0).toLocaleString() },
-          { text: '稅金(5%)：$' + Number(quote.tax||0).toLocaleString() },
-          { text: '總計：$' + Number(quote.total||0).toLocaleString(), bold: true, fontSize: 14 },
-          needsManual ? { text: '（含需專人報價項目）' } : {},
-          { text: ' ' },
-          { text: '【公司資訊】', style: 'sectionHeader' },
-          { text: '琺恩斯國際｜02-82732233' },
-          { text: '新北市土城區青仁路116號' },
-          { text: '營業時間：09:30～20:00（每週三公休）' }
-        ].filter(function(x){ return x === '' || x.text !== undefined; }),
-        styles: {
-          title: { fontSize: 18, bold: true, alignment: 'center', margin: [0,0,0,10] },
-          subtitle: { fontSize: 10, color: '#666', alignment: 'center', margin: [0,0,0,20] },
-          sectionHeader: { fontSize: 12, bold: true, margin: [0,10,0,5] }
-        },
-        pageSize: 'A4',
-        pageMargins: [40, 40, 40, 40]
-      };
-      const pdfDoc = pdfMake.createPdf(doc);
-      return new Promise(function(resolve) {
-        pdfDoc.getBase64(function(data) { resolve(data); });
-      });
-    }
-
-    async function downloadPDF(customer, quote) {
-      const b64 = await encodePDF(customer, quote);
-      const blob = base64ToBlob(b64, 'application/pdf');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'JFE_' + customer.name + '_' + customer.phone + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    
-    function base64ToBlob(base64, mimeType) {
-      const byteChars = atob(base64);
-      const byteNums = new Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
-      return new Blob([new Uint8Array(byteNums)], { type: mimeType });
-    }
-
-    function encodePDF(customer, quote) {
-      const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
-      const needsManual = quote.needsManualQuote;
-      const doc = {
-        content: [
-          { text: 'JFE 琺瑯板報價單', style: 'title' },
-          { text: '報價時間：' + now, style: 'subtitle' },
-          { text: ' ' },
-          { text: '【客戶資料】', style: 'sectionHeader' },
-          { text: '姓名：' + customer.name },
-          { text: '電話：' + customer.phone },
-          { text: 'Email：' + customer.email },
-          { text: '地址：' + customer.address },
-          customer.installDate ? { text: '希望安裝日期：' + customer.installDate } : {},
-          { text: ' ' },
-          { text: '【報價明細】', style: 'sectionHeader' },
-          { text: '小計：$' + Number(quote.subtotal||0).toLocaleString() },
-          { text: '稅金(5%)：$' + Number(quote.tax||0).toLocaleString() },
-          { text: '總計：$' + Number(quote.total||0).toLocaleString(), bold: true, fontSize: 14 },
-          needsManual ? { text: '（含需專人報價項目）' } : {},
-          { text: ' ' },
-          { text: '【公司資訊】', style: 'sectionHeader' },
-          { text: '琺恩斯國際｜02-82732233' },
-          { text: '新北市土城區青仁路116號' },
-          { text: '營業時間：09:30～20:00（每週三公休）' }
-        ].filter(function(x){ return x === '' || x.text !== undefined; }),
-        styles: {
-          title: { fontSize: 18, bold: true, alignment: 'center', margin: [0,0,0,10] },
-          subtitle: { fontSize: 10, color: '#666', alignment: 'center', margin: [0,0,0,20] },
-          sectionHeader: { fontSize: 12, bold: true, margin: [0,10,0,5] }
-        },
-        pageSize: 'A4',
-        pageMargins: [40, 40, 40, 40]
-      };
-      const pdfDoc = pdfMake.createPdf(doc);
-      return new Promise(function(resolve) {
-        pdfDoc.getBase64(function(data) { resolve(data); });
-      });
-    }
-
-    async function downloadPDF(customer, quote) {
-      const b64 = await encodePDF(customer, quote);
-      const blob = base64ToBlob(b64, 'application/pdf');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'JFE_' + customer.name + '_' + customer.phone + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
     async function submitQuote(customer, quote) {
       try {
-        // 產生 PDF
-        const pdfBase64 = await encodePDF(customer, quote);
-      await downloadPDF(customer, quote); // trigger download
-
         const response = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer, quote, pdfBase64 })
+          body: JSON.stringify({ customer, quote })
         });
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.error || '提交失敗');
         }
-        
-        // 提供 PDF 下載給顧客
-        const blob = base64ToBlob(pdfBase64, 'application/pdf');
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `JFE_${customer.name}_${customer.phone}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
         return { success: true };
       } catch (error) {
         console.error('Submit error:', error);
         return { success: false, error: error.message };
       }
     }
-    
-    function base64ToBlob(base64, mimeType) {
-      const byteCharacters = atob(base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
       const byteArray = new Uint8Array(byteNumbers);
       return new Blob([byteArray], { type: mimeType });
     }
@@ -869,7 +576,7 @@
       showLoading(false);
       if (result.success) {
         const display = document.getElementById('quoteDisplay');
-        display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>報價已確認！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p><strong>報價總金額：$${currentQuote.total.toLocaleString()}</strong></p><p style="margin-top:15px;">PDF 報價單已自動下載至您的裝置。</p><p style="margin-top:5px;color:#666;">如未下載，請點<a href="#" onclick="location.reload()">重新下載</a></p><p style="margin-top:20px;color:#888;">我們也會將報價單 Email 至：${currentQuote.customer.email}</p></div>`;
+        display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>報價已確認！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p><strong>報價總金額：$${currentQuote.total.toLocaleString()}</strong></p><p style="margin-top:20px;color:#888;">我們也會將報價單 Email 至：${currentQuote.customer.email}</p></div>`;
         document.querySelector('.modal-actions').style.display = 'none';
       } else {
         alert('儲存失敗：' + result.error + '\n\n報價單已顯示，請聯繫客服處理。');
