@@ -547,9 +547,6 @@
         return { success: false, error: error.message };
       }
     }
-      const byteArray = new Uint8Array(byteNumbers);
-      return new Blob([byteArray], { type: mimeType });
-    }
 
     async function confirmQuote() {
       if (!currentQuote) { alert('沒有報價資料'); return; }
