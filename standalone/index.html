@@ -601,7 +601,6 @@
     }
 
     function encodePDF(customer, quote) {
-      pdfMake.config({ cmapUrl: 'https://cdn.jsdelivr.net/npm/pdfmake@0.2.7/build/' });
       const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
       const needsManual = quote.needsManualQuote;
       const doc = {
@@ -663,7 +662,6 @@
     }
 
     function encodePDF(customer, quote) {
-      pdfMake.config({ cmapUrl: 'https://cdn.jsdelivr.net/npm/pdfmake@0.2.7/build/' });
       const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
       const needsManual = quote.needsManualQuote;
       const doc = {
@@ -725,7 +723,6 @@
     }
 
     function encodePDF(customer, quote) {
-      pdfMake.config({ cmapUrl: 'https://cdn.jsdelivr.net/npm/pdfmake@0.2.7/build/' });
       const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
       const needsManual = quote.needsManualQuote;
       const doc = {
