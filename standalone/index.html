@@ -8,21 +8,28 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
   <script>
-    // 等 pdfmake 載入完成後設定字體
-    if (typeof pdfMake !== 'undefined') {
-      pdfMake.fonts = {
-        notoSansTC: {
-          normal: 'NotoSansTC-Regular',
-          bold: 'NotoSansTC-Bold',
-          italics: 'NotoSansTC-Regular',
-          bolditalics: 'NotoSansTC-Bold'
-        }
-      };
-      // 動態載入 Noto Sans TC 字體
-      var style = document.createElement('style');
-      style.textContent = '@font-face { font-family: "NotoSansTC-Regular"; src: url(https://fonts.gstatic.com/s/notosanstc/v36/pxiLypw3ucYo5KIlNlnf0h5RJ3Ox6CgjDI5aidP.woff2) format("woff2"); } @font-face { font-family: "NotoSansTC-Bold"; src: url(https://fonts.gstatic.com/s/notosanstc/v36/pxiLypw3ucYo5KIlNlnf0h5RJ3Ox6CgjDI5aidP.woff2) format("woff2"); }';
-      document.head.appendChild(style);
+    // 下載並註冊中文字體
+    function loadCJKFont() {
+      // Noto Sans TC Regular (子集)
+      var fontUrl = 'https://fonts.gstatic.com/s/notosanstc/v36/pxiLypw3ucYo5KIlNlnf0h5RJ3Ox6CgjDI5aidP.woff2';
+      fetch(fontUrl)
+        .then(function(response) { return response.arrayBuffer(); })
+        .then(function(buffer) {
+          var uint8Array = new Uint8Array(buffer);
+          pdfMake.vfs['NotoSansTC-Regular.woff2'] = uint8Array;
+          pdfMake.fonts = {
+            notoSansTC: {
+              normal: 'NotoSansTC-Regular.woff2',
+              bold: 'NotoSansTC-Regular.woff2',
+              italics: 'NotoSansTC-Regular.woff2',
+              bolditalics: 'NotoSansTC-Regular.woff2'
+            }
+          };
+          console.log('CJK font loaded');
+        })
+        .catch(function(e) { console.error('Font load error:', e); });
     }
+    loadCJKFont();
   </script>
     <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -646,7 +653,11 @@
           sectionHeader: { fontSize: 12, bold: true, margin: [0,10,0,5] }
         },
         pageSize: 'A4',
-        pageMargins: [40, 40, 40, 40]
+        pageMargins: [40, 40, 40, 40],
+        defaultStyle: {
+          font: 'notoSansTC',
+          fontSize: 12
+        }
       };
       const pdfDoc = pdfMake.createPdf(doc);
       return new Promise(function(resolve) {
