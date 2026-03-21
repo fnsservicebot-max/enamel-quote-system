@@ -28,11 +28,7 @@ async function uploadPDF(env, quoteData, pdfBase64) {
   return res.json();
 }
 
-async function sendEmail(env, customer, pdfBase64) {
-  const customerEmail = customer.email;
-  const storeEmail = 'fns.service.bot@gmail.com';
-  
-  // Build HTML email body
+async function sendEmailToStore(env, customer, pdfBase64) {
   const now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
   const htmlBody = `
     <h2>JFE 琺瑯板報價單</h2>
@@ -41,6 +37,7 @@ async function sendEmail(env, customer, pdfBase64) {
     <h3>客戶資料</h3>
     <p><strong>姓名：</strong>${customer.name}</p>
     <p><strong>電話：</strong>${customer.phone}</p>
+    <p><strong>Email：</strong>${customer.email}</p>
     <p><strong>地址：</strong>${customer.address}</p>
     ${customer.installDate ? `<p><strong>希望安裝日期：</strong>${customer.installDate}</p>` : ''}
     <hr>
@@ -56,37 +53,29 @@ async function sendEmail(env, customer, pdfBase64) {
     <p>營業時間：09:30～20:00（每週三公休）</p>
   `;
 
-  const attachments = [{
-    filename: `JFE_${customer.name}_${customer.phone}.pdf`,
-    content: pdfBase64
-  }];
-
-  // Send to customer
-  const toEmails = [customerEmail, storeEmail].filter(Boolean);
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: 'JFE琺瑯板報價 <onboarding@resend.dev>',
+      to: ['fns.service.bot@gmail.com'],
+      subject: `JFE 琺瑯板報價單 - ${customer.name}`,
+      html: htmlBody,
+      attachments: [{
+        filename: `JFE_${customer.name}_${customer.phone}.pdf`,
+        content: pdfBase64
+      }]
+    })
+  });
   
-  for (const to of toEmails) {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'JFE琺瑯板報價 <onboarding@resend.dev>',
-        to: to,
-        subject: `JFE 琺瑯板報價單 - ${customer.name}`,
-        html: htmlBody,
-        attachments: attachments
-      })
-    });
-    
-    if (!res.ok) {
-      const err = await res.text();
-      console.error(`Email to ${to} failed:`, err);
-    } else {
-      console.log(`Email sent to ${to}`);
-    }
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Email error: ${err}`);
   }
+  return res.json();
 }
 
 export default {
@@ -119,14 +108,15 @@ export default {
       } catch (kvErr) {}
     }
 
-    // PDF上傳 + Email寄送
     let pdfId = null;
     if (body.pdfBase64) {
+      // Upload to Drive
       try {
         pdfId = (await uploadPDF(env, body, body.pdfBase64)).id;
       } catch (e) { console.error('PDF upload error:', e); }
+      // Send email to store only
       try {
-        await sendEmail(env, body.customer, body.pdfBase64);
+        await sendEmailToStore(env, body.customer, body.pdfBase64);
       } catch (e) { console.error('Email error:', e); }
     }
 

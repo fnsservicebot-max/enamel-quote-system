@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>琺瑯壁板報價系統 V26032102</title>
+  <title>琺瑯壁板報價系統 V26032103</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -107,7 +107,7 @@
   <div class="container">
     <header class="header">
       <h1>🏠 琺瑯壁板報價系統</h1>
-      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032102</span></p>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032103</span></p>
     </header>
     <form id="quoteForm">
       <section class="section">
@@ -579,10 +579,20 @@
       return await encodePDF(customer, quote);
     }
 
-        async function submitQuote(customer, quote) {
+        function base64ToBlob(base64, mimeType) {
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      return new Blob([byteArray], { type: mimeType });
+    }
+
+    async function submitQuote(customer, quote) {
       try {
         // 產生 PDF
-        const pdfBase64 = generatePDF(customer, quote);
+        const pdfBase64 = await generatePDF(customer, quote);
 
         const response = await fetch(WORKER_URL, {
           method: 'POST',
@@ -593,11 +603,33 @@
           const data = await response.json();
           throw new Error(data.error || '提交失敗');
         }
+        
+        // 提供 PDF 下載給顧客
+        const blob = base64ToBlob(pdfBase64, 'application/pdf');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `JFE_${customer.name}_${customer.phone}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
         return { success: true };
       } catch (error) {
         console.error('Submit error:', error);
         return { success: false, error: error.message };
       }
+    }
+    
+    function base64ToBlob(base64, mimeType) {
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      return new Blob([byteArray], { type: mimeType });
     }
 
     async function confirmQuote() {
@@ -625,7 +657,7 @@
       showLoading(false);
       if (result.success) {
         const display = document.getElementById('quoteDisplay');
-        display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>報價已確認！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p><strong>報價總金額：$${currentQuote.total.toLocaleString()}</strong></p><p style="margin-top:20px;color:#888;">請依據上述匯款資訊進行匯款，謝謝！</p></div>`;
+        display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>報價已確認！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p><strong>報價總金額：$${currentQuote.total.toLocaleString()}</strong></p><p style="margin-top:15px;">PDF 報價單已自動下載至您的裝置。</p><p style="margin-top:5px;color:#666;">如未下載，請點<a href="#" onclick="location.reload()">重新下載</a></p><p style="margin-top:20px;color:#888;">我們也會將報價單 Email 至：${currentQuote.customer.email}</p></div>`;
         document.querySelector('.modal-actions').style.display = 'none';
       } else {
         alert('儲存失敗：' + result.error + '\n\n報價單已顯示，請聯繫客服處理。');
