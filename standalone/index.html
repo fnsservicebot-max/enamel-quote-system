@@ -8,9 +8,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
   <script>
-    // CJK 支援設定
-    if (typeof pdfMake !== 'undefined' && pdfMake.config) {
-      pdfMake.config({ cmapUrl: 'https://cdn.jsdelivr.net/npm/pdfmake@0.2.7/build/vfs_fonts.js' });
+    // 等 pdfmake 載入完成後設定字體
+    if (typeof pdfMake !== 'undefined') {
+      pdfMake.fonts = {
+        notoSansTC: {
+          normal: 'NotoSansTC-Regular',
+          bold: 'NotoSansTC-Bold',
+          italics: 'NotoSansTC-Regular',
+          bolditalics: 'NotoSansTC-Bold'
+        }
+      };
+      // 動態載入 Noto Sans TC 字體
+      var style = document.createElement('style');
+      style.textContent = '@font-face { font-family: "NotoSansTC-Regular"; src: url(https://fonts.gstatic.com/s/notosanstc/v36/pxiLypw3ucYo5KIlNlnf0h5RJ3Ox6CgjDI5aidP.woff2) format("woff2"); } @font-face { font-family: "NotoSansTC-Bold"; src: url(https://fonts.gstatic.com/s/notosanstc/v36/pxiLypw3ucYo5KIlNlnf0h5RJ3Ox6CgjDI5aidP.woff2) format("woff2"); }';
+      document.head.appendChild(style);
     }
   </script>
     <style>
