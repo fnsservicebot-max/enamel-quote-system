@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>琺瑯壁板報價系統 V26032101</title>
+  <title>琺瑯壁板報價系統 V26032102</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -107,7 +107,7 @@
   <div class="container">
     <header class="header">
       <h1>🏠 琺瑯壁板報價系統</h1>
-      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032101</span></p>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032102</span></p>
     </header>
     <form id="quoteForm">
       <section class="section">
@@ -120,6 +120,10 @@
           <div class="form-group">
             <label for="phone">電話 <span class="required">*</span></label>
             <input type="tel" id="phone" name="phone" required placeholder="0912345678">
+          </div>
+          <div class="form-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="example@email.com">
           </div>
           <div class="form-group full-width">
             <label>安裝地址 <span class="required">*</span></label>
@@ -442,14 +446,14 @@
         return { 
           success: true, 
           needsManualQuote: true,
-          customer: { name: formData.name, phone: formData.phone, address: formData.address, installDate: formData.installDate },
+          customer: { name: formData.name, phone: formData.phone, email: formData.email, address: formData.address, installDate: formData.installDate },
           bank: CONFIG.bank
         };
       }
       
       const tax = subtotal * CONFIG.pricing.taxRate;
       const total = subtotal + tax;
-      return { success: true, customer: { name: formData.name, phone: formData.phone, address: formData.address, installDate: formData.installDate }, areas, subtotal: Math.round(subtotal), tax: Math.round(tax), total: Math.round(total), bank: CONFIG.bank };
+      return { success: true, customer: { name: formData.name, phone: formData.phone, email: formData.email, address: formData.address, installDate: formData.installDate }, areas, subtotal: Math.round(subtotal), tax: Math.round(tax), total: Math.round(total), bank: CONFIG.bank };
     }
 
     function calculatePreview() {
@@ -493,7 +497,7 @@
       });
       display.innerHTML = `
         <h2 class="quote-title">📋 報價單</h2>
-        <div class="quote-section"><h4>👤 客戶資訊</h4><div class="customer-info"><p><strong>姓名：</strong>${quote.customer.name}</p><p><strong>電話：</strong>${quote.customer.phone}</p><p><strong>地址：</strong>${quote.customer.address}</p><p><strong>希望安裝日期：</strong>${quote.customer.installDate || '未指定'}</p></div></div>
+        <div class="quote-section"><h4>👤 客戶資訊</h4><div class="customer-info"><p><strong>姓名：</strong>${quote.customer.name}</p><p><strong>電話：</strong>${quote.customer.phone}</p><p><strong>Email：</strong>${quote.customer.email}</p><p><strong>地址：</strong>${quote.customer.address}</p><p><strong>希望安裝日期：</strong>${quote.customer.installDate || '未指定'}</p></div></div>
         <div class="quote-section"><h4>📐 報價明細</h4><table class="area-table"><thead><tr><th>尺寸</th><th>計價</th><th>單價</th><th>壁板</th><th>開孔</th><th>開孔費</th><th>周長</th><th>收邊條</th><th>小計</th></tr></thead><tbody>${areasHtml}</tbody></table></div>
         <div class="quote-total"><div class="row"><span>小計：</span><span>$${quote.subtotal.toLocaleString()}</span></div><div class="row"><span>稅金 (5%)：</span><span>$${quote.tax.toLocaleString()}</span></div><div class="row total-row"><span>總計：</span><span>$${quote.total.toLocaleString()}</span></div></div>
         <div class="bank-info"><h4>🏦 匯款資訊</h4><div class="bank-detail"><p>銀行：${quote.bank.name} (${quote.bank.code})</p><p>帳號：<strong>${quote.bank.account}</strong></p></div></div>
@@ -542,6 +546,7 @@
           { text: '【客戶資料】', style: 'sectionHeader' },
           { text: '姓名：' + customer.name },
           { text: '電話：' + customer.phone },
+          { text: 'Email：' + customer.email },
           { text: '地址：' + customer.address },
           customer.installDate ? { text: '希望安裝日期：' + customer.installDate } : {},
           { text: ' ', margin: [0,5] },
