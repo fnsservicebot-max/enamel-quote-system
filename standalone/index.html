@@ -492,10 +492,33 @@
           '<p style="margin-top:20px;color:#888;">請留意您的 Email 收件箱（也請檢查垃圾郵件）。</p>' +
           '</div>';
         modalActions.style.display = 'none';
+        // 3秒後跳回首頁並清除資料
+        setTimeout(function() {
+          closeModal();
+          resetForm();
+          window.location.href = window.location.pathname;
+        }, 3000);
       } else {
         alert('送出失敗：' + result.error + '\n\n請聯繫客服處理。');
         closeModal();
       }
+    }
+
+    
+    function resetForm() {
+      document.getElementById('quoteForm').reset();
+      document.getElementById('areasContainer').innerHTML = '';
+      areaCount = 1;
+      addArea();
+      document.getElementById('city').value = '';
+      document.getElementById('district').innerHTML = '<option value=\"\">請先選擇縣市</option>';
+      document.getElementById('district').disabled = true;
+      document.getElementById('street').value = '';
+      currentQuote = null;
+      isVerified = false;
+      document.getElementById('notRobot').checked = false;
+      document.getElementById('verifyQuestion').style.display = 'none';
+      document.getElementById('mathAnswer').value = '';
     }
 
     function handleSubmit(event) { event.preventDefault(); calculatePreview(); }
