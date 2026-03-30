@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>琺瑯壁板報價系統 V26032801</title>
+  <title>琺瑯壁板報價系統 V26032802</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
@@ -101,7 +101,7 @@
   <div class="container">
     <header class="header">
       <h1>🏠 琺瑯壁板報價系統</h1>
-      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032801</span></p>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26032802</span></p>
     </header>
     <form id="quoteForm">
       <section class="section">
@@ -339,7 +339,7 @@
       areaCount++;
     }
 
-    function removeArea(index) { const area = document.getElementById('area' + index); if (area) area.remove(); }
+    function removeArea(index) { var area = document.getElementById('area' + index); if (area) area.remove(); }
 
     function validateForm() {
       if (!isVerified || !checkMathAnswer()) { alert('請完成防機器人驗證'); return false; }
@@ -461,32 +461,34 @@
         '<p style="font-size:0.9rem;color:#888;">（門市採全預約制，請提前來電確認）</p></div>';
     }
 
+    // 使用 no-cors 模式（不回傳結果，只負責發送）
     async function submitToNotion(customer, quote) {
-      try {
-        var payload = { action: 'notion', customer: customer, quote: quote };
-        var response = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (!response.ok) {
-          var data = await response.json();
-          throw new Error(data.error || '提交失敗');
-        }
-        return { success: true };
-      } catch (error) {
-        console.error('Submit error:', error);
-        return { success: false, error: error.message };
-      }
+      var payload = { action: 'notion', customer: customer, quote: quote };
+      
+      // 使用 no-cors - 请求会发送但无法读取响应
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      // no-cors 模式下无法判断成功与否，假设发送成功
+      return { success: true };
     }
 
     async function confirmQuote() {
       if (!currentQuote) { alert('沒有報價資料'); return; }
       
       showLoading(true);
-      var result = await submitToNotion(currentQuote.customer, currentQuote);
-      showLoading(false);
       
+      try {
+        var result = await submitToNotion(currentQuote.customer, currentQuote);
+      } catch (e) {
+        result = { success: false, error: e.message };
+      }
+      
+      showLoading(false);
       var display = document.getElementById('quoteDisplay');
       var modalActions = document.getElementById('modalActions');
       
