@@ -461,20 +461,25 @@
         '<p style="font-size:0.9rem;color:#888;">（門市採全預約制，請提前來電確認）</p></div>';
     }
 
-    // 使用 no-cors 模式（不回傳結果，只負責發送）
+    // 使用 GET 方式（URL 參數 + base64 編碼）
     async function submitToNotion(customer, quote) {
-      var payload = { action: 'notion', customer: customer, quote: quote };
+      var payload = { customer: customer, quote: quote };
+      var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       
-      // 使用 no-cors - 请求会发送但无法读取响应
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      // 使用 redirect: 'follow' 讓請求正常完成
+      var url = GAS_URL + '?action=notion&data=' + encodeURIComponent(encoded);
       
-      // no-cors 模式下无法判断成功与否，假设发送成功
-      return { success: true };
+      try {
+        var response = await fetch(url, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        // 無法讀取回應內容，假設成功
+        return { success: true };
+      } catch (e) {
+        console.error('Fetch error:', e);
+        return { success: false, error: e.message };
+      }
     }
 
     async function confirmQuote() {
