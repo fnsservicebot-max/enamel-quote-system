@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>琺瑯報價系統</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'PingFang TC', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #2c5ea8;
+      color: #fff;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .section {
+      padding: 20px 24px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #2c5ea8;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .product-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dashed #eee;
+    }
+
+    .product-row:last-child {
+      border-bottom: none;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-name {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .product-price {
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .product-qty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .product-qty label {
+      font-size: 0.82rem;
+      color: #666;
+    }
+
+    .product-qty input {
+      width: 60px;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .product-qty input:focus {
+      outline: none;
+      border-color: #2c5ea8;
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .field-row label {
+      font-size: 0.95rem;
+    }
+
+    .field-row input {
+      width: 120px;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: right;
+    }
+
+    .field-row input:focus {
+      outline: none;
+      border-color: #2c5ea8;
+    }
+
+    .field-hint {
+      font-size: 0.78rem;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .result {
+      background: #f0f4fb;
+      padding: 20px 24px;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .result-row.total {
+      border-top: 2px solid #2c5ea8;
+      margin-top: 10px;
+      padding-top: 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2c5ea8;
+    }
+
+    .result-row span:first-child {
+      color: #666;
+    }
+
+    .result-row.total span {
+      color: #2c5ea8;
+    }
+
+    .note {
+      background: #fff8e6;
+      border: 1px solid #ffe0a0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: #886600;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .note strong {
+      color: #b36b00;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.78rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🔧 琺瑯報價系統</h1>
+    <p>含稅含運 · 快速估價</p>
+  </div>
+
+  <!-- 琺瑯尺寸選擇 -->
+  <div class="section">
+    <div class="section-title">📦 琺瑯板選擇</div>
+
+    <div class="product-row">
+      <div class="product-info">
+        <div class="product-name">240 × 89 cm</div>
+        <div class="product-price">每片 $18,000</div>
+      </div>
+      <div class="product-qty">
+        <label>數量</label>
+        <input type="number" id="qty-240x89" min="0" max="99" value="0" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-info">
+        <div class="product-name">300 × 89 cm</div>
+        <div class="product-price">每片 $25,000</div>
+      </div>
+      <div class="product-qty">
+        <label>數量</label>
+        <input type="number" id="qty-300x89" min="0" max="99" value="0" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-info">
+        <div class="product-name">240 × 121 cm</div>
+        <div class="product-price">每片 $28,000</div>
+      </div>
+      <div class="product-qty">
+        <label>數量</label>
+        <input type="number" id="qty-240x121" min="0" max="99" value="0" oninput="calculate()">
+      </div>
+    </div>
+  </div>
+
+  <!-- 施工範圍 -->
+  <div class="section">
+    <div class="section-title">📐 施工範圍（計算收邊條）</div>
+
+    <div class="field-row">
+      <label>施工區域寬度</label>
+      <div>
+        <input type="number" id="width" min="0" max="2000" value="0" placeholder="公分" oninput="calculate()">
+        <div class="field-hint">單位：公分</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>施工區域高度</label>
+      <div>
+        <input type="number" id="height" min="0" max="2000" value="0" placeholder="公分" oninput="calculate()">
+        <div class="field-hint">單位：公分</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 開孔 -->
+  <div class="section">
+    <div class="section-title">🔍 開孔數量</div>
+    <div class="field-row">
+      <label>開孔數量</label>
+      <input type="number" id="holes" min="0" max="99" value="0" oninput="calculate()">
+    </div>
+  </div>
+
+  <!-- 報價結果 -->
+  <div class="result">
+    <div class="section-title">📋 報價明細</div>
+
+    <div class="result-row">
+      <span>琺瑯板小計</span>
+      <span id="panel-total">$0</span>
+    </div>
+    <div class="result-row">
+      <span>開孔費 (<span id="hole-count">0</span>孔 × $300)</span>
+      <span id="hole-total">$0</span>
+    </div>
+    <div class="result-row">
+      <span>施工費</span>
+      <span id="install-fee">$0</span>
+    </div>
+    <div class="result-row">
+      <span>收邊條 (<span id="perimeter">0</span>cm × $1.5)</span>
+      <span id="edge-total">$0</span>
+    </div>
+    <div class="result-row">
+      <span>未稅合計</span>
+      <span id="subtotal">$0</span>
+    </div>
+    <div class="result-row">
+      <span>稅額 (10%)</span>
+      <span id="tax">$0</span>
+    </div>
+    <div class="result-row total">
+      <span>總計（含稅含運）</span>
+      <span id="grand-total">$0</span>
+    </div>
+
+    <div class="note">
+      <strong>備註：</strong><br>
+      • 基本施工費用 $5,000（2片以內）<br>
+      • 第3片起每片加收 $2,000<br>
+      • 收邊條以施工範圍週長計算<br>
+      • 以上均為含稅含運價格
+    </div>
+  </div>
+
+  <div class="footer">
+    琺瑯報價系統 · Takarastandard
+  </div>
+</div>
+
+<script>
+  const PRICES = {
+    '240x89': 18000,
+    '300x89': 25000,
+    '240x121': 28000
+  };
+  const HOLE_PRICE = 300;
+  const EDGE_PRICE = 1.5;
+  const BASE_INSTALL = 5000;
+  const ADDITIONAL_INSTALL = 2000;
+  const TAX_RATE = 0.10;
+
+  function get(id) {
+    return parseFloat(document.getElementById(id).value) || 0;
+  }
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+
+  function calculate() {
+    const qty240 = get('qty-240x89');
+    const qty300 = get('qty-300x89');
+    const qty240_121 = get('qty-240x121');
+    const width = get('width');
+    const height = get('height');
+    const holes = get('holes');
+
+    const totalPanels = qty240 + qty300 + qty240_121;
+
+    const panelTotal =
+      qty240 * PRICES['240x89'] +
+      qty300 * PRICES['300x89'] +
+      qty240_121 * PRICES['240x121'];
+
+    const holeTotal = holes * HOLE_PRICE;
+
+    const installFee = totalPanels <= 2
+      ? BASE_INSTALL
+      : BASE_INSTALL + (totalPanels - 2) * ADDITIONAL_INSTALL;
+
+    const perimeter = (width + height) * 2;
+    const edgeTotal = perimeter * EDGE_PRICE;
+
+    const subtotal = panelTotal + holeTotal + installFee + edgeTotal;
+    const tax = subtotal * TAX_RATE;
+    const grandTotal = subtotal + tax;
+
+    document.getElementById('panel-total').textContent = fmt(panelTotal);
+    document.getElementById('hole-count').textContent = holes;
+    document.getElementById('hole-total').textContent = fmt(holeTotal);
+    document.getElementById('install-fee').textContent = fmt(installFee);
+    document.getElementById('perimeter').textContent = perimeter.toLocaleString();
+    document.getElementById('edge-total').textContent = fmt(edgeTotal);
+    document.getElementById('subtotal').textContent = fmt(subtotal);
+    document.getElementById('tax').textContent = fmt(tax);
+    document.getElementById('grand-total').textContent = fmt(grandTotal);
+  }
+
+  // init
+  calculate();
+</script>
+
+</body>
+</html>
