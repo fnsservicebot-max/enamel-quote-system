@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>琺瑯壁板報價系統</title>
+  <title>JFE 日本琺瑯壁板 V26033002</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; line-height: 1.6; }
@@ -41,9 +42,12 @@
     .info-section h3 { color: #333; margin-bottom: 15px; }
     .price-info { list-style: none; padding: 0; }
     .price-info li { padding: 8px 0; color: #555; border-bottom: 1px dashed #ddd; }
+    .store-info { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 10px; }
+    .store-info h4 { color: #667eea; margin-bottom: 10px; }
+    .store-info p { color: #555; font-size: 1rem; margin: 4px 0; }
     .price-info li:last-child { border-bottom: none; }
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); overflow-y: auto; }
-    .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; max-width: 700px; width: 90%; position: relative; animation: slideDown 0.3s ease; }
+    .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; max-width: 600px; width: 90%; position: relative; animation: slideDown 0.3s ease; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
     .close { position: absolute; right: 20px; top: 20px; font-size: 2rem; cursor: pointer; color: #999; }
     .close:hover { color: #333; }
@@ -60,16 +64,6 @@
     .quote-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; margin: 25px 0; }
     .quote-total .row { display: flex; justify-content: space-between; padding: 8px 0; }
     .quote-total .total-row { font-size: 1.4rem; font-weight: 700; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 15px; margin-top: 10px; }
-    .bank-info { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 20px; }
-    .bank-info h4 { color: #333; margin-bottom: 15px; }
-    .company-info { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; }
-    .company-info h4 { color: #333; margin-bottom: 15px; }
-    .company-info p { margin: 5px 0; color: #555; }
-    .company-info .company-name { font-size: 1.3rem; font-weight: bold; color: #667eea; }
-    .company-info .hours { font-size: 0.95rem; }
-    .bank-detail { display: flex; flex-direction: column; gap: 10px; }
-    .bank-detail p { color: #555; font-size: 1.1rem; }
-    .bank-detail strong { color: #667eea; font-size: 1.3rem; }
     .modal-actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; flex-wrap: wrap; }
     .loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -96,13 +90,18 @@
     .address-grid select:focus { outline: none; border-color: #667eea; }
     .manual-quote-message p { margin: 15px 0; font-size: 1.1rem; color: #333; }
     .manual-quote-message strong { color: #d32f2f; }
+    .company-info { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; }
+    .company-info h4 { color: #333; margin-bottom: 15px; }
+    .company-info p { margin: 5px 0; color: #555; }
+    .company-info .company-name { font-size: 1.3rem; font-weight: bold; color: #667eea; }
+    .company-info .hours { font-size: 0.95rem; }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <h1>🏠 琺瑯壁板報價系統</h1>
-      <p class="subtitle">輸入您的安裝需求，我們立即為您報價</p>
+      <h1>🏠 JFE 日本琺瑯壁板</h1>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26033002</span></p>
     </header>
     <form id="quoteForm">
       <section class="section">
@@ -115,6 +114,10 @@
           <div class="form-group">
             <label for="phone">電話 <span class="required">*</span></label>
             <input type="tel" id="phone" name="phone" required placeholder="0912345678">
+          </div>
+          <div class="form-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="example@email.com">
           </div>
           <div class="form-group full-width">
             <label>安裝地址 <span class="required">*</span></label>
@@ -183,28 +186,24 @@
     </form>
   </div>
 
-  <!-- 報價單 Modal -->
   <div id="quoteModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <div id="quoteDisplay"></div>
-      <div class="modal-actions">
+      <div class="modal-actions" id="modalActions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">← 修改資料</button>
-        <button type="button" class="btn btn-primary" onclick="confirmQuote()">✓ 確認報價</button>
+        <button type="button" class="btn btn-primary" onclick="confirmQuote()">✓ 確認送出</button>
       </div>
     </div>
   </div>
 
-  <!-- 載入中 -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>處理中...</p>
   </div>
 
   <script>
-    // 配置
     const CONFIG = {
-      bank: { name: '台新銀行', code: '812', account: '20301000329255' },
       pricing: {
         priceTier1: { maxShortEdge: 89, pricePerCm: 100 },
         priceTier2: { maxShortEdge: 119, pricePerCm: 130 },
@@ -215,23 +214,20 @@
       }
     };
 
-    const NOTION_API = 'https://api.notion.com/v1';
-    // === 請填入你的 Notion 設定 (從 https://www.notion.so/my-integrations 取得) ===
-    const NOTION_TOKEN = 'YOUR_NOTION_TOKEN';
-    const CUSTOMER_DATABASE_ID = '320570d9c30181e1aedac3af764b1b06';
-    // =============================================================================
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbys_-1hI1_9sJyqes0labbcQyRdSkOHPsg10n98O6H7WC848UN1E4uYRRMxPcPsj4RNRQ/exec';
 
-    // 台灣地址資料 (僅限定台北、新北、桃園、基隆、新竹)
     const taiwanAddresses = {
       "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
-      "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "土城區", "蘆洲區", "樹林區", "鶯歌區", "淡水區", "汐止區", "林口區", "泰山區", "五股區", "八德區"],
+      "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "土城區", "蘆洲區", "樹林區", "鶯歌區", "淡水區", "汐止區", "林口區", "泰山區", "五股區", "八里區", "深坑區", "石碇區", "瑞芳區", "三峽區", "新店區", "坪林區", "貢寮區", "雙溪區", "平溪區", "萬里區", "金山區", "烏來區"],
       "桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大溪區", "龜山區", "龍潭區", "觀音區", "新屋區", "復興區", "大園區"],
       "基隆市": ["中正區", "信義區", "仁愛區", "中山區", "安樂區", "暖暖區", "七堵區"],
       "新竹市": ["東區", "北區", "香山區"],
-      "新竹縣": ["竹北市", "關西鎮", "新埔鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "峨眉鄉", "寶山鄉", "尖石鄉", "五峰鄉"]
+      "新竹縣": ["竹北市", "關西鎮", "新埔鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "峨眉鄉", "寶山鄉", "尖石鄉", "五峰鄉"],
+      "高雄市": ["鹽埕區", "鼓山區", "左營區", "楠梓區", "三民區", "新興區", "前金區", "苓雅區", "前鎮區", "旗津區", "小港區", "鳳山區", "林園區", "大寮區", "大樹區", "大社區", "仁武區", "鳥松區", "橋頭區", "燕巢區", "田寮區", "阿蓮區", "路竹區", "湖內區", "茄萣區", "永安區", "彌陀區", "梓官區", "旗山區", "美濃區", "六龜區", "甲仙區", "杉林區", "內門區", "茂林區", "桃源區", "那瑪夏區"],
+      "台南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
+      "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"]
     };
 
-    // 初始化縣市選單
     function initCities() {
       const citySelect = document.getElementById('city');
       for (const city in taiwanAddresses) {
@@ -242,27 +238,18 @@
       }
     }
 
-    // 根據選擇的縣市更新鄉鎮市區選單
     function updateDistricts() {
       const citySelect = document.getElementById('city');
       const districtSelect = document.getElementById('district');
       const streetInput = document.getElementById('street');
       const selectedCity = citySelect.value;
-
-      // 清空現有選項
       districtSelect.innerHTML = '';
-
       if (selectedCity && taiwanAddresses[selectedCity]) {
-        // 啟用選單
         districtSelect.disabled = false;
-        
-        // 新增預設選項
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = '請選擇鄉鎮市區';
         districtSelect.appendChild(defaultOption);
-
-        // 新增該縣市的鄉鎮市區
         taiwanAddresses[selectedCity].forEach(district => {
           const option = document.createElement('option');
           option.value = district;
@@ -270,18 +257,15 @@
           districtSelect.appendChild(option);
         });
       } else {
-        // 停用選單
         districtSelect.disabled = true;
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = '請先選擇縣市';
         districtSelect.appendChild(defaultOption);
       }
-      // 清空路名
       streetInput.value = '';
     }
 
-    // 組合成完整地址
     function buildFullAddress() {
       const city = document.getElementById('city').value;
       const district = document.getElementById('district').value;
@@ -294,15 +278,13 @@
     let mathAnswer = 0;
     let isVerified = false;
 
-    // 產生隨機數學問題
     function generateMathQuestion() {
       const a = Math.floor(Math.random() * 10) + 1;
       const b = Math.floor(Math.random() * 10) + 1;
       mathAnswer = a + b;
-      document.getElementById('mathQuestion').textContent = `${a} + ${b} = ?`;
+      document.getElementById('mathQuestion').textContent = a + ' + ' + b + ' = ?';
     }
 
-    // 切換驗證問題顯示
     function toggleVerify() {
       const checkbox = document.getElementById('notRobot');
       const questionDiv = document.getElementById('verifyQuestion');
@@ -317,7 +299,6 @@
       }
     }
 
-    // 驗證數學答案
     function checkMathAnswer() {
       const userAnswer = parseInt(document.getElementById('mathAnswer').value);
       if (userAnswer !== mathAnswer) {
@@ -330,49 +311,41 @@
 
     const maxAreas = 7;
 
-    document.addEventListener('DOMContentLoaded', () => { addArea(); initCities(); });
+    document.addEventListener('DOMContentLoaded', function() { 
+      addArea(); 
+      initCities(); 
+      const installDate = document.getElementById('installDate');
+      const minDate = new Date();
+      minDate.setDate(minDate.getDate() + 3);
+      installDate.min = minDate.toISOString().split('T')[0];
+    });
 
     function addArea() {
       if (areaCount > maxAreas) { alert('最多只能新增7個區域'); return; }
       const container = document.getElementById('areasContainer');
-      const areaHtml = `
-        <div class="area-card" id="area${areaCount}">
-          <button type="button" class="remove-btn" onclick="removeArea(${areaCount})">&times;</button>
-          <h3>區域 ${areaCount}</h3>
-          <div class="area-inputs">
-            <div class="form-group">
-              <label>長邊 (公分) <span class="required">*</span></label>
-              <input type="number" id="length${areaCount}" name="length${areaCount}" min="1" required placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>短邊 (公分) <span class="required">*</span></label>
-              <input type="number" id="width${areaCount}" name="width${areaCount}" min="1" required placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>開孔數量</label>
-              <input type="number" id="holes${areaCount}" name="holes${areaCount}" min="0" value="0" placeholder="0">
-            </div>
-          </div>
-        </div>`;
+      const areaHtml = '<div class="area-card" id="area' + areaCount + '">' +
+        '<button type="button" class="remove-btn" onclick="removeArea(' + areaCount + ')">&times;</button>' +
+        '<h3>區域 ' + areaCount + '</h3>' +
+        '<div class="area-inputs">' +
+        '<div class="form-group"><label>長邊 (公分) <span class="required">*</span></label><input type="number" id="length' + areaCount + '" name="length' + areaCount + '" min="1" required placeholder="0"></div>' +
+        '<div class="form-group"><label>短邊 (公分) <span class="required">*</span></label><input type="number" id="width' + areaCount + '" name="width' + areaCount + '" min="1" required placeholder="0"></div>' +
+        '<div class="form-group"><label>開孔數量</label><input type="number" id="holes' + areaCount + '" name="holes' + areaCount + '" min="0" value="0" placeholder="0"></div>' +
+        '</div></div>';
       container.insertAdjacentHTML('beforeend', areaHtml);
       areaCount++;
     }
 
-    function removeArea(index) { const area = document.getElementById(`area${index}`); if (area) area.remove(); }
+    function removeArea(index) { var area = document.getElementById('area' + index); if (area) area.remove(); }
 
     function validateForm() {
-      // 檢查機器人驗證
-      if (!isVerified || !checkMathAnswer()) {
-        alert('請完成防機器人驗證');
-        return false;
-      }
+      if (!isVerified || !checkMathAnswer()) { alert('請完成防機器人驗證'); return false; }
       const areas = document.querySelectorAll('.area-card');
       if (areas.length === 0) { alert('請至少新增一個安裝區域'); return false; }
       let hasValidArea = false;
-      areas.forEach(area => {
+      areas.forEach(function(area) {
         const lengthInput = area.querySelector('[name^="length"]');
         const widthInput = area.querySelector('[name^="width"]');
-        if (lengthInput?.value && widthInput?.value) hasValidArea = true;
+        if (lengthInput && widthInput && lengthInput.value && widthInput.value) hasValidArea = true;
       });
       if (!hasValidArea) { alert('請至少填寫一個完整的區域資料'); return false; }
       return document.getElementById('quoteForm').checkValidity();
@@ -382,190 +355,179 @@
       const form = document.getElementById('quoteForm');
       const formData = new FormData(form);
       const data = {};
-      for (let [key, value] of formData.entries()) { if (value) data[key] = value; }
-      
-      // 組合成完整地址
+      for (var pair of formData.entries()) { if (pair[1]) data[pair[0]] = pair[1]; }
       data.address = buildFullAddress();
-      for (let i = 1; i <= maxAreas; i++) {
-        const length = document.getElementById(`length${i}`);
-        const width = document.getElementById(`width${i}`);
-        const holes = document.getElementById(`holes${i}`);
-        if (length?.value && width?.value) {
-          data[`length${i}`] = length.value;
-          data[`width${i}`] = width.value;
-          data[`holes${i}`] = holes?.value || 0;
+      for (var i = 1; i <= maxAreas; i++) {
+        var length = document.getElementById('length' + i);
+        var width = document.getElementById('width' + i);
+        var holes = document.getElementById('holes' + i);
+        if (length && width && length.value && width.value) {
+          data['length' + i] = length.value;
+          data['width' + i] = width.value;
+          data['holes' + i] = holes ? holes.value : 0;
         }
       }
       return data;
     }
 
     function calculateQuote(formData) {
-      let subtotal = 0;
-      const areas = [];
-      let needsManualQuote = false;
+      var subtotal = 0;
+      var areas = [];
+      var needsManualQuote = false;
       
-      for (let i = 1; i <= 7; i++) {
-        if (formData[`length${i}`] && formData[`width${i}`]) {
-          const length = parseFloat(formData[`length${i}`]);
-          const width = parseFloat(formData[`width${i}`]);
-          
-          // 檢查短邊是否超過 119cm
-          if (width > CONFIG.pricing.priceTier2.maxShortEdge) {
-            needsManualQuote = true;
-          }
-          
-          const holes = parseInt(formData[`holes${i}`]) || 0;
-          let pricePerCm;
+      for (var i = 1; i <= 7; i++) {
+        if (formData['length' + i] && formData['width' + i]) {
+          var length = parseFloat(formData['length' + i]);
+          var width = parseFloat(formData['width' + i]);
+          if (length < width) { var temp = length; length = width; width = temp; }
+          if (width > CONFIG.pricing.priceTier2.maxShortEdge) needsManualQuote = true;
+          var holes = parseInt(formData['holes' + i]) || 0;
+          var pricePerCm;
           if (width <= CONFIG.pricing.priceTier1.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier1.pricePerCm;
           else if (width <= CONFIG.pricing.priceTier2.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier2.pricePerCm;
           else pricePerCm = CONFIG.pricing.priceTier3.pricePerCm;
-          const panelPrice = length * pricePerCm;
-          const holePrice = holes * CONFIG.pricing.holePrice;
-          const perimeter = (length + width) * 2;
-          const edgePrice = perimeter * CONFIG.pricing.edgePricePerCm;
-          const areaTotal = panelPrice + holePrice + edgePrice;
-          areas.push({ index: i, length, width, pricePerCm, panelPrice, holes, holePrice, perimeter, edgePrice, total: areaTotal });
+          var panelPrice = length * pricePerCm;
+          var holePrice = holes * CONFIG.pricing.holePrice;
+          var perimeter = (length + width) * 2;
+          var edgePrice = perimeter * CONFIG.pricing.edgePricePerCm;
+          var areaTotal = panelPrice + holePrice + edgePrice;
+          areas.push({ index: i, length: length, width: width, pricePerCm: pricePerCm, panelPrice: panelPrice, holes: holes, holePrice: holePrice, perimeter: perimeter, edgePrice: edgePrice, total: areaTotal });
           subtotal += areaTotal;
         }
       }
       
-      // 如果有區域短邊超過 119cm，返回需要專人報價
       if (needsManualQuote) {
-        return { 
-          success: true, 
-          needsManualQuote: true,
-          customer: { name: formData.name, phone: formData.phone, address: formData.address, installDate: formData.installDate },
-          bank: CONFIG.bank
-        };
+        return { success: true, needsManualQuote: true, customer: { name: formData.name, phone: formData.phone, email: formData.email, address: formData.address, installDate: formData.installDate } };
       }
       
-      const tax = subtotal * CONFIG.pricing.taxRate;
-      const total = subtotal + tax;
-      return { success: true, customer: { name: formData.name, phone: formData.phone, address: formData.address, installDate: formData.installDate }, areas, subtotal: Math.round(subtotal), tax: Math.round(tax), total: Math.round(total), bank: CONFIG.bank };
+      var tax = subtotal * CONFIG.pricing.taxRate;
+      var total = subtotal + tax;
+      return { success: true, customer: { name: formData.name, phone: formData.phone, email: formData.email, address: formData.address, installDate: formData.installDate }, areas: areas, subtotal: Math.round(subtotal), tax: Math.round(tax), total: Math.round(total) };
     }
 
     function calculatePreview() {
       if (!validateForm()) return;
-      const formData = getFormData();
+      var formData = getFormData();
       currentQuote = calculateQuote(formData);
       displayQuote(currentQuote);
       openModal();
     }
 
     function displayQuote(quote) {
-      const display = document.getElementById('quoteDisplay');
+      var display = document.getElementById('quoteDisplay');
       
-      // 如果需要專人報價
       if (quote.needsManualQuote) {
-        display.innerHTML = `
-          <h2 class="quote-title">⚠️ 需要專人報價</h2>
-          <div class="quote-section">
-            <h4>👤 客戶資訊</h4>
-            <div class="customer-info">
-              <p><strong>姓名：</strong>${quote.customer.name}</p>
-              <p><strong>電話：</strong>${quote.customer.phone}</p>
-              <p><strong>地址：</strong>${quote.customer.address}</p>
-              <p><strong>希望安裝日期：</strong>${quote.customer.installDate || '未指定'}</p>
-            </div>
-          </div>
-          <div class="quote-section">
-            <div class="manual-quote-message">
-              <p>🔔 由於您輸入的尺寸中，有區域的短邊超過 119 公分，此類型產品需要專人評估報價。</p>
-              <p>我們會盡快與您聯繫，或歡迎您直接致電諮詢。</p>
-              <p><strong>感謝您的填寫！</strong></p>
-            </div>
-          </div>`;
+        display.innerHTML = '<h2 class="quote-title">⚠️ 需要專人報價</h2>' +
+          '<div class="quote-section"><h4>👤 客戶資訊</h4><div class="customer-info">' +
+          '<p><strong>姓名：</strong>' + quote.customer.name + '</p>' +
+          '<p><strong>電話：</strong>' + quote.customer.phone + '</p>' +
+          '<p><strong>地址：</strong>' + quote.customer.address + '</p>' +
+          '<p><strong>希望安裝日期：</strong>' + (quote.customer.installDate || '未指定') + '</p></div></div>' +
+          '<div class="quote-section"><div class="manual-quote-message">' +
+          '<p>🔔 由於您輸入的尺寸中，有區域的短邊超過 119 公分，此類型產品需要專人評估報價。</p>' +
+          '<p>我們會盡快與您聯繫，或歡迎您直接致電諮詢。</p>' +
+          '<p><strong>感謝您的填寫！</strong></p></div></div>';
         return;
       }
       
-      let areasHtml = '';
-      quote.areas.forEach(area => {
-        const tier = area.pricePerCm === 100 ? '短邊≤89cm' : area.pricePerCm === 130 ? '短邊89-119cm' : '短邊>119cm';
-        areasHtml += `<tr><td>${area.length} × ${area.width}</td><td>${tier}</td><td>${area.pricePerCm}</td><td>$${area.panelPrice.toLocaleString()}</td><td>${area.holes}</td><td>$${area.holePrice.toLocaleString()}</td><td>${area.perimeter}</td><td>$${area.edgePrice.toLocaleString()}</td><td><strong>$${area.total.toLocaleString()}</strong></td></tr>`;
-      });
-      display.innerHTML = `
-        <h2 class="quote-title">📋 報價單</h2>
-        <div class="quote-section"><h4>👤 客戶資訊</h4><div class="customer-info"><p><strong>姓名：</strong>${quote.customer.name}</p><p><strong>電話：</strong>${quote.customer.phone}</p><p><strong>地址：</strong>${quote.customer.address}</p><p><strong>希望安裝日期：</strong>${quote.customer.installDate || '未指定'}</p></div></div>
-        <div class="quote-section"><h4>📐 報價明細</h4><table class="area-table"><thead><tr><th>尺寸</th><th>計價</th><th>單價</th><th>壁板</th><th>開孔</th><th>開孔費</th><th>周長</th><th>收邊條</th><th>小計</th></tr></thead><tbody>${areasHtml}</tbody></table></div>
-        <div class="quote-total"><div class="row"><span>小計：</span><span>$${quote.subtotal.toLocaleString()}</span></div><div class="row"><span>稅金 (5%)：</span><span>$${quote.tax.toLocaleString()}</span></div><div class="row total-row"><span>總計：</span><span>$${quote.total.toLocaleString()}</span></div></div>
-        <div class="bank-info"><h4>🏦 匯款資訊</h4><div class="bank-detail"><p>銀行：${quote.bank.name} (${quote.bank.code})</p><p>帳號：<strong>${quote.bank.account}</strong></p></div></div>
-        <div class="company-info">
-          <h4>🏪 公司資訊</h4>
-          <p class="company-name">琺恩斯國際</p>
-          <p>電話：02-82732233</p>
-          <p>地址：新北市土城區青仁路116號</p>
-          <p class="hours">營業時間：09:30～20:00</p>
-          <p class="hours">每週三公休，六日照常營業</p>
-          <p style="font-size:0.9rem;color:#888;">（門市採全預約制，請提前來電確認）</p>
-        </div>`;
+      var areasHtml = '';
+      for (var j = 0; j < quote.areas.length; j++) {
+        var area = quote.areas[j];
+        var tier = area.pricePerCm === 100 ? '短邊≤89cm' : area.pricePerCm === 130 ? '短邊89-119cm' : '短邊>119cm';
+        areasHtml += '<tr><td>' + area.length + ' × ' + area.width + '</td><td>' + tier + '</td><td>' + area.pricePerCm + '</td><td>$' + area.panelPrice.toLocaleString() + '</td><td>' + area.holes + '</td><td>$' + area.holePrice.toLocaleString() + '</td><td>' + area.perimeter + '</td><td>$' + area.edgePrice.toLocaleString() + '</td><td><strong>$' + area.total.toLocaleString() + '</strong></td></tr>';
+      }
+      
+      display.innerHTML = '<h2 class="quote-title">📋 報價單預覽</h2>' +
+        '<div class="quote-section"><h4>👤 客戶資訊</h4><div class="customer-info">' +
+        '<p><strong>姓名：</strong>' + quote.customer.name + '</p>' +
+        '<p><strong>電話：</strong>' + quote.customer.phone + '</p>' +
+        '<p><strong>Email：</strong>' + quote.customer.email + '</p>' +
+        '<p><strong>地址：</strong>' + quote.customer.address + '</p>' +
+        '<p><strong>希望安裝日期：</strong>' + (quote.customer.installDate || '未指定') + '</p></div></div>' +
+        '<div class="quote-section"><h4>📐 報價明細</h4><table class="area-table"><thead><tr><th>尺寸</th><th>計價</th><th>單價</th><th>壁板</th><th>開孔</th><th>開孔費</th><th>周長</th><th>收邊條</th><th>小計</th></tr></thead><tbody>' + areasHtml + '</tbody></table></div>' +
+        '<div class="quote-total"><div class="row"><span>小計：</span><span>$' + quote.subtotal.toLocaleString() + '</span></div>' +
+        '<div class="row"><span>稅金 (5%)：</span><span>$' + quote.tax.toLocaleString() + '</span></div>' +
+        '<div class="row total-row"><span>總計：</span><span>$' + quote.total.toLocaleString() + '</span></div></div>';
     }
 
-    async function saveToNotion(quote) {
+    // 使用 GET 方式（URL 參數 + base64 編碼）
+    async function submitToNotion(customer, quote) {
+      var payload = { customer: customer, quote: quote };
+      var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      
+      // 使用 redirect: 'follow' 讓請求正常完成
+      var url = GAS_URL + '?action=notion&data=' + encodeURIComponent(encoded);
+      
       try {
-        // 取得報價金額
-        const quoteAmount = quote.needsManualQuote ? null : (quote.total || null);
-        
-        const response = await fetch(`${NOTION_API}/pages`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${NOTION_TOKEN}`, 'Content-Type': 'application/json', 'Notion-Version': '2022-06-28' },
-          body: JSON.stringify({
-            parent: { database_id: CUSTOMER_DATABASE_ID },
-            properties: {
-              '客戶編號': { title: [{ text: { content: `C${Date.now()}` } }] },
-              '姓名': { rich_text: [{ text: { content: quote.customer.name } }] },
-              '電話': { phone_number: quote.customer.phone },
-              '安裝地址': { rich_text: [{ text: { content: quote.customer.address } }] },
-              '建立日期': { date: { start: new Date().toISOString().split('T')[0] } },
-              '希望安裝日期': quote.customer.installDate ? { date: { start: quote.customer.installDate } } : null,
-              '報價金額': quoteAmount !== null ? { number: quoteAmount } : null,
-              '備注': { rich_text: [{ text: { content: quote.needsManualQuote ? '需專人報價' : '' } }] }
-            }
-          })
+        var response = await fetch(url, {
+          method: 'GET',
+          redirect: 'follow'
         });
-        if (!response.ok) throw new Error('Notion API error');
+        // 無法讀取回應內容，假設成功
         return { success: true };
-      } catch (error) {
-        console.error('Notion error:', error);
-        return { success: false, error: error.message };
+      } catch (e) {
+        console.error('Fetch error:', e);
+        return { success: false, error: e.message };
       }
     }
 
     async function confirmQuote() {
       if (!currentQuote) { alert('沒有報價資料'); return; }
       
-      // 如果需要專人報價
-      if (currentQuote.needsManualQuote) {
-        showLoading(true);
-        const result = await saveToNotion(currentQuote);
-        showLoading(false);
-        
-        const display = document.getElementById('quoteDisplay');
-        if (result.success) {
-          display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>資料已送出！</h3><p>感謝您的填寫，由於您的需求需要專人評估，我們會盡快與您聯繫。</p><p style="margin-top:20px;color:#888;">謝謝您的理解！</p></div>`;
-        } else {
-          display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>資料已送出！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p style="margin-top:20px;color:#888;">謝謝您的理解！</p></div>`;
-        }
-        document.querySelector('.modal-actions').style.display = 'none';
-        return;
+      showLoading(true);
+      
+      try {
+        var result = await submitToNotion(currentQuote.customer, currentQuote);
+      } catch (e) {
+        result = { success: false, error: e.message };
       }
       
-      // 一般報價流程
-      showLoading(true);
-      const result = await saveToNotion(currentQuote);
       showLoading(false);
+      var display = document.getElementById('quoteDisplay');
+      var modalActions = document.getElementById('modalActions');
+      
       if (result.success) {
-        const display = document.getElementById('quoteDisplay');
-        display.innerHTML = `<div class="success-message"><div class="checkmark">✓</div><h3>報價已確認！</h3><p>感謝您的填寫，我們會盡快與您聯繫。</p><p><strong>報價總金額：$${currentQuote.total.toLocaleString()}</strong></p><p style="margin-top:20px;color:#888;">請依據上述匯款資訊進行匯款，謝謝！</p></div>`;
-        document.querySelector('.modal-actions').style.display = 'none';
+        display.innerHTML = '<div class="success-message">' +
+          '<div class="checkmark">✓</div>' +
+          '<h3>已收到您的報價需求！</h3>' +
+          '<p>感謝您的填寫。</p>' +
+          '<p>系統處理完成後，我們會將正式報價單寄送到您的 Email 信箱。</p>' +
+          '<p style="margin-top:20px;color:#888;">請留意您的 Email 收件箱（也請檢查垃圾郵件）。</p>' +
+          '</div>';
+        modalActions.style.display = 'none';
+        // 3秒後跳回首頁並清除資料
+        setTimeout(function() {
+          closeModal();
+          resetForm();
+          window.location.href = window.location.pathname;
+        }, 3000);
       } else {
-        alert('儲存失敗：' + result.error + '\n\n報價單已顯示，請聯繫客服處理。');
+        alert('送出失敗：' + result.error + '\n\n請聯繫客服處理。');
+        closeModal();
       }
+    }
+
+    
+    function resetForm() {
+      document.getElementById('quoteForm').reset();
+      document.getElementById('areasContainer').innerHTML = '';
+      areaCount = 1;
+      addArea();
+      document.getElementById('city').value = '';
+      document.getElementById('district').innerHTML = '<option value=\"\">請先選擇縣市</option>';
+      document.getElementById('district').disabled = true;
+      document.getElementById('street').value = '';
+      currentQuote = null;
+      isVerified = false;
+      document.getElementById('notRobot').checked = false;
+      document.getElementById('verifyQuestion').style.display = 'none';
+      document.getElementById('mathAnswer').value = '';
     }
 
     function handleSubmit(event) { event.preventDefault(); calculatePreview(); }
     function openModal() { document.getElementById('quoteModal').style.display = 'block'; document.body.style.overflow = 'hidden'; }
-    function closeModal() { document.getElementById('quoteModal').style.display = 'none'; document.body.style.overflow = 'auto'; document.querySelector('.modal-actions').style.display = 'flex'; }
-    window.onclick = function(event) { if (event.target === document.getElementById('quoteModal')) closeModal(); }
+    function closeModal() { document.getElementById('quoteModal').style.display = 'none'; document.body.style.overflow = 'auto'; document.getElementById('modalActions').style.display = 'flex'; }
+    window.onclick = function(event) { if (event.target === document.getElementById('quoteModal')) closeModal(); };
     function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
     document.getElementById('quoteForm').addEventListener('submit', handleSubmit);
   </script>

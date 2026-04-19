@@ -1,0 +1,39 @@
+name: Notion Proxy
+
+on:
+  repository_dispatch:
+    types: [quote-submitted]
+
+jobs:
+  forward-to-notion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug payload
+        run: |
+          echo "Customer: ${{ github.event.client_payload.customer.name }}"
+          echo "Has quote: ${{ github.event.client_payload.quote != '' }}"
+
+      - name: Create Notion page
+        run: |
+          CUSTOMER='${{ toJson(github.event.client_payload.customer) }}'
+          QUOTE='${{ toJson(github.event.client_payload.quote) }}'
+          
+          NOTE=$(echo "$QUOTE" | python3 -c "import sys,json; q=json.load(sys.stdin); print('需專人報價' if q.get('needsManualQuote') else '')")
+
+          curl -s -X POST 'https://api.notion.com/v1/pages' \
+            -H "Authorization: Bearer ${{ secrets.NOTION_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -H "Notion-Version: 2022-06-28" \
+            -d "{
+              \"parent\": { \"database_id\": \"${{ vars.NOTION_CUSTOMER_DATABASE_ID }}\" },
+              \"properties\": {
+                \"客戶編號\": { \"title\": [{ \"text\": { \"content\": \"C$(date +%s)\" } }] },
+                \"姓名\": { \"rich_text\": [{ \"text\": { \"content\": \"${{ github.event.client_payload.customer.name }}\" } }] },
+                \"電話\": { \"phone_number\": \"${{ github.event.client_payload.customer.phone }}\" },
+                \"安裝地址\": { \"rich_text\": [{ \"text\": { \"content\": \"${{ github.event.client_payload.customer.address }}\" } }] },
+                \"建立日期\": { \"date\": { \"start\": \"$(date +%Y-%m-%d)\" } },
+                \"希望安裝日期\": { \"date\": { \"start\": \"${{ github.event.client_payload.customer.installDate }}\" } },
+                \"報價金額\": { \"number\": ${{ github.event.client_payload.quote.total || 0 }} },
+                \"備注\": { \"rich_text\": [{ \"text\": { \"content\": \"$NOTE\" } }] }
+              }
+            }"
