@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JFE 日本琺瑯壁板 V26041901</title>
+  <title>JFE 日本琺瑯壁板 V26042801</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
@@ -101,7 +101,7 @@
   <div class="container">
     <header class="header">
       <h1>🏠 JFE 日本琺瑯壁板</h1>
-      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26041901</span></p>
+      <p class="subtitle">輸入您的安裝需求，我們立即為您報價｜<span style="font-size:0.85rem;">V26042801</span></p>
     </header>
     <form id="quoteForm">
       <section class="section">
@@ -156,9 +156,10 @@
       <section class="section info-section">
         <h3>📋 報價說明</h3>
         <ul class="price-info">
-          <li>短邊 ≤ 89cm：長邊 × 90元/公分</li>
-          <li>短邊 89-119cm：長邊 × 115元/公分</li>
+          <li>短邊 ≤ 89cm：長邊 × 80元/公分</li>
+          <li>短邊 89-119cm：長邊 × 110元/公分</li>
           <li>短邊 > 119cm：需專人報價（請來電諮詢）</li>
+          <li>每場未滿300公分以300公分計</li>
           <li>開孔：每個 300元</li>
           <li>收邊條：每公分 1.5元 (依區域周長計算)</li>
           <li><strong>以上皆含稅含運</strong></li>
@@ -205,8 +206,8 @@
   <script>
     const CONFIG = {
       pricing: {
-        priceTier1: { maxShortEdge: 89, pricePerCm: 90 },
-        priceTier2: { maxShortEdge: 119, pricePerCm: 115 },
+        priceTier1: { maxShortEdge: 89, pricePerCm: 80 },
+        priceTier2: { maxShortEdge: 119, pricePerCm: 110 },
         priceTier3: { pricePerCm: 160 },
         holePrice: 300,
         edgePricePerCm: 1.5,
@@ -386,7 +387,7 @@
           if (width <= CONFIG.pricing.priceTier1.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier1.pricePerCm;
           else if (width <= CONFIG.pricing.priceTier2.maxShortEdge) pricePerCm = CONFIG.pricing.priceTier2.pricePerCm;
           else pricePerCm = CONFIG.pricing.priceTier3.pricePerCm;
-          var panelPrice = length * pricePerCm;
+          var panelPrice = Math.max(length, 300) * pricePerCm;
           var holePrice = holes * CONFIG.pricing.holePrice;
           var perimeter = (length + width) * 2;
           var edgePrice = perimeter * CONFIG.pricing.edgePricePerCm;
@@ -433,7 +434,7 @@
       var areasHtml = '';
       for (var j = 0; j < quote.areas.length; j++) {
         var area = quote.areas[j];
-        var tier = area.pricePerCm === 90 ? '短邊≤89cm' : area.pricePerCm === 115 ? '短邊89-119cm' : '短邊>119cm';
+        var tier = area.pricePerCm === 80 ? '短邊≤89cm' : area.pricePerCm === 110 ? '短邊89-119cm' : '短邊>119cm';
         areasHtml += '<tr><td>' + area.length + ' × ' + area.width + '</td><td>' + tier + '</td><td>' + area.pricePerCm + '</td><td>$' + area.panelPrice.toLocaleString() + '</td><td>' + area.holes + '</td><td>$' + area.holePrice.toLocaleString() + '</td><td>' + area.perimeter + '</td><td>$' + area.edgePrice.toLocaleString() + '</td><td><strong>$' + area.total.toLocaleString() + '</strong></td></tr>';
       }
       
